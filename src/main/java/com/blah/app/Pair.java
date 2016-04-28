@@ -10,11 +10,11 @@ public class Pair<A, B> {
     }
 
     public String toString() {
-        return "(" + first + ", " + second + ")";
+        return "(" + this.first + ", " + this.second + ")";
     }
 
     public A getFirst() {
-        return first;
+        return this.first;
     }
 
     public void setFirst(A first) {
@@ -22,7 +22,7 @@ public class Pair<A, B> {
     }
 
     public B getSecond() {
-        return second;
+        return this.second;
     }
 
     public void setSecond(B second) {

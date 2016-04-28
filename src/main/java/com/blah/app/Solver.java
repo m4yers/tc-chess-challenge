@@ -14,6 +14,37 @@ import java.util.HashMap;
  */
 public class Solver {
 
+    // TODO use it to break recursion
+    private static class Context {
+        public Board board;
+        public LinkedList<Piece> input;
+        public int inputIndex;
+        public LinkedList<Board.Location> frees;
+        public int freesIndex;
+
+        public Context(
+            Board board,
+            LinkedList<Piece> input,
+            int inputIndex,
+            LinkedList<Board.Location> frees,
+            int freesIndex) {
+
+            this.board = board;
+            this.input = input;
+            this.inputIndex = inputIndex;
+            this.frees = frees;
+            this.freesIndex = freesIndex;
+        }
+
+        public Context(Context that) {
+            this.board = new Board(that.board);
+            this.input = new LinkedList<>(input);
+            this.inputIndex = inputIndex;
+            this.frees = new LinkedList<>(frees);
+            this.freesIndex = freesIndex;
+        }
+    }
+
     public static LinkedList<Board> getAllBoards( Board board, HashMap<Piece, Integer> input) {
         LinkedList<Board> result = new LinkedList<>();
 
@@ -24,7 +55,7 @@ public class Solver {
         LinkedList<LinkedList<Piece>> inputs = new LinkedList<>();
         permuteInput(input, total, new LinkedList<>(), inputs);
         for (LinkedList<Piece> i : inputs) {
-            getAllBoards(board, i, board.getFreePositions(), result);
+            getAllBoards(board, i, board.getFreeLocations(), result);
         }
 
         return result;
@@ -56,7 +87,7 @@ public class Solver {
     public static void getAllBoards(
         Board board,
         LinkedList<Piece> input,
-        LinkedList<Pair<Integer, Integer>> frees,
+        LinkedList<Board.Location> frees,
         LinkedList<Board> list) {
 
         if (input.size() == 0) {
@@ -66,9 +97,9 @@ public class Solver {
 
         Piece piece = input.removeFirst();
         while (frees.size() != 0) {
-            Pair<Integer, Integer> pair = frees.removeFirst();
+            Board.Location loc = frees.removeFirst();
             Board clone = new Board(board);
-            if (tryToPlace(clone, piece, pair.getFirst(), pair.getSecond())) {
+            if (tryToPlace(clone, piece, loc.m(), loc.n())) {
                 // TODO use queue here to break recursion like BFS
                 // TODO to escape input and frees cloning, use indices
                 getAllBoards(clone, new LinkedList<>(input), new LinkedList<>(frees), list);
@@ -80,7 +111,8 @@ public class Solver {
         for (Piece.Move move : piece.getMoves()) {
             switch (move) {
             case Perpendicular: {
-                if (!board.isAnyPieceOnRow(n) && !board.isAnyPieceOnColumn(m)) {
+                if (!board.isBlocked(m, n) &&
+                        !board.isAnyPieceOnRow(n) && !board.isAnyPieceOnColumn(m)) {
                     board.addPiece(piece, m, n);
                     board.addPerpendicularBlock(m, n);
                     return true;
@@ -94,7 +126,22 @@ public class Solver {
                 break;
             }
             case King: {
-                break;
+                if (!board.isBlocked(m, n)
+                        && !board.isAnyPieceAt(m, n)
+                        && !board.isAnyPieceAt(m, n - 1)
+                        && !board.isAnyPieceAt(m, n + 1)
+                        && !board.isAnyPieceAt(m - 1, n)
+                        && !board.isAnyPieceAt(m + 1, n)
+                        && !board.isAnyPieceAt(m - 1, n - 1)
+                        && !board.isAnyPieceAt(m + 1, n - 1)
+                        && !board.isAnyPieceAt(m - 1, n + 1)
+                        && !board.isAnyPieceAt(m + 1, n + 1)) {
+                    board.addPiece(piece, m, n);
+                    board.addPerpendicularBlock(m, n, 1);
+                    board.addDiagonalBlock(m, n, 1);
+                    return true;
+                }
+                return false;
             }
             default: {
                 throw new IllegalArgumentException();

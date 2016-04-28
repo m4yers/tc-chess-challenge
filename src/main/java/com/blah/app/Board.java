@@ -6,6 +6,20 @@ import java.util.TreeMap;
 
 public class Board {
 
+    public static class Location extends Pair<Integer, Integer> {
+        public Location(int m, int n) {
+            super(m, n);
+        }
+
+        public int m() {
+            return this.getFirst();
+        }
+
+        public int n() {
+            return this.getSecond();
+        }
+    }
+
     private int M; // column
     private int N; // row
     private int size;
@@ -46,9 +60,59 @@ public class Board {
     }
 
     public void addPerpendicularBlock(int m, int n) {
+        this.addPerpendicularBlock(m, n, Math.max(M, N));
+    }
+
+    public void addPerpendicularBlock(int m, int n, int l) {
+        while (l != 0) {
+            if (this.withinBounds(m + l, n)) {
+                this.addBlock(m + l, n);
+            }
+            if (this.withinBounds(m - l, n)) {
+                this.addBlock(m - l, n);
+            }
+            if (this.withinBounds(m, n + l)) {
+                this.addBlock(m, n + l);
+            }
+            if (this.withinBounds(m, n - l)) {
+                this.addBlock(m, n - l);
+            }
+
+            --l;
+        }
     }
 
     public void addDiagonalBlock(int m, int n) {
+        this.addDiagonalBlock(m, n, M + N);
+    }
+
+    public void addDiagonalBlock(int m, int n, int l) {
+        for (int e = 1; true && l > 0; e++, l--) {
+            boolean exit = true;
+            if (this.withinBounds(m + e, n + e)) {
+                this.addBlock(m + e, n + e);
+                exit = false;
+            }
+
+            if (this.withinBounds(m + e, n - e)) {
+                this.addBlock(m + e, n - e);
+                exit = false;
+            }
+
+            if (this.withinBounds(m - e, n + e)) {
+                this.addBlock(m - e, n + e);
+                exit = false;
+            }
+
+            if (this.withinBounds(m - e, n - e)) {
+                this.addBlock(m - e, n - e);
+                exit = false;
+            }
+
+            if (exit) {
+                break;
+            }
+        }
     }
 
     public void addPiece(Piece piece, int m, int n) {
@@ -58,10 +122,15 @@ public class Board {
         this.map.put(toFieldIndex(m, n), piece);
     }
 
+    public boolean isBlocked(int m, int n) {
+        assert withinBounds(m, n) : "WUBALUBADUBDUB";
+        return this.field[toFieldIndex(m, n)];
+    }
+
     public boolean isAnyPieceAt(int m, int n) {
         for (int f : this.map.keySet()) {
-            Pair<Integer, Integer> pair = toPair(f);
-            if (pair.getFirst() == m && pair.getSecond() == n) {
+            Location loc = toLocation(f);
+            if (loc.m() == m && loc.n() == n) {
                 return true;
             }
         }
@@ -70,7 +139,7 @@ public class Board {
 
     public boolean isAnyPieceOnRow(int n) {
         for (int f : this.map.keySet()) {
-            if (toPair(f).getSecond() == n) {
+            if (toLocation(f).n() == n) {
                 return true;
             }
         }
@@ -79,7 +148,7 @@ public class Board {
 
     public boolean isAnyPieceOnColumn(int m) {
         for (int f : this.map.keySet()) {
-            if (toPair(f).getFirst() == m) {
+            if (toLocation(f).m() == m) {
                 return true;
             }
         }
@@ -107,11 +176,11 @@ public class Board {
     //     return result;
     // }
 
-    public LinkedList<Pair<Integer, Integer>> getFreePositions() {
-        LinkedList<Pair<Integer, Integer>> result = new LinkedList<>();
+    public LinkedList<Location> getFreeLocations() {
+        LinkedList<Location> result = new LinkedList<>();
         for (int f = 0; f < this.size; f++) {
             if (!this.field[f]) {
-                result.add(toPair(f));
+                result.add(toLocation(f));
             }
         }
         return result;
@@ -141,7 +210,7 @@ public class Board {
         return n * N + m;
     }
 
-    private Pair<Integer, Integer> toPair(int f) {
-        return new Pair<Integer, Integer>(f % M, f / N);
+    private Location toLocation(int f) {
+        return new Location(f % M, f / N);
     }
 }
