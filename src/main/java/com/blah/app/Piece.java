@@ -3,17 +3,17 @@ package com.blah.app;
 final public class Piece {
 
     public static enum Move {
-        PerpendicularSingle,
         Perpendicular,
         Diagonal,
-        Knight
+        Knight,
+        King
     };
 
-    private static Piece king = new Piece(Move.PerpendicularSingle);
-    private static Piece queen = new Piece(Move.Perpendicular, Move.Diagonal);
-    private static Piece bishop = new Piece(Move.Perpendicular);
-    private static Piece rook = new Piece(Move.Diagonal);
-    private static Piece knight = new Piece(Move.Knight);
+    private static Piece king = new Piece("K", Move.King);
+    private static Piece queen = new Piece("Q", Move.Perpendicular, Move.Diagonal);
+    private static Piece bishop = new Piece("B", Move.Diagonal);
+    private static Piece rook = new Piece("R", Move.Perpendicular);
+    private static Piece knight = new Piece("N", Move.Knight);
 
     public static Piece getKing() {
         return king;
@@ -37,12 +37,22 @@ final public class Piece {
 
     // TODO make it immutable?
     final private Move[] moves;
+    final String symbol;
 
-    private Piece(Move...moves) {
+    private Piece(String symbol, Move...moves) {
+        this.symbol = symbol;
         this.moves = moves.clone();
     }
 
     public Move[] getMoves() {
         return this.moves.clone();
+    }
+
+    public String getSymbol() {
+        return symbol;
+    }
+
+    public String toString() {
+        return symbol;
     }
 }
