@@ -97,6 +97,7 @@ public class Solver {
 
         Piece piece = input.removeFirst();
         while (frees.size() != 0) {
+            // FIXME the free list is changed every time we add a thing, need to request it again
             Board.Location loc = frees.removeFirst();
             Board clone = new Board(board);
             if (tryToPlace(clone, piece, loc.m(), loc.n())) {
@@ -123,7 +124,28 @@ public class Solver {
                 break;
             }
             case Knight: {
-                break;
+                if (!board.isBlocked(m, n)
+                        && !board.isAnyPieceAt(m - 2, n - 1)
+                        && !board.isAnyPieceAt(m - 1, n - 2)
+                        && !board.isAnyPieceAt(m + 2, n - 1)
+                        && !board.isAnyPieceAt(m + 1, n - 2)
+                        && !board.isAnyPieceAt(m - 2, n + 1)
+                        && !board.isAnyPieceAt(m - 1, n + 2)
+                        && !board.isAnyPieceAt(m + 2, n + 1)
+                        && !board.isAnyPieceAt(m + 1, n + 2)
+                        && !board.isAnyPieceAt(m, n)) {
+                    board.addPiece(piece, m, n);
+                    board.addBlock(m - 2, n - 1);
+                    board.addBlock(m - 1, n - 2);
+                    board.addBlock(m + 2, n - 1);
+                    board.addBlock(m + 1, n - 2);
+                    board.addBlock(m - 2, n + 1);
+                    board.addBlock(m - 1, n + 2);
+                    board.addBlock(m + 2, n + 1);
+                    board.addBlock(m + 1, n + 2);
+                    return true;
+                }
+                return false;
             }
             case King: {
                 if (!board.isBlocked(m, n)

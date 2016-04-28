@@ -52,7 +52,10 @@ public class Board {
     }
 
     public void addBlock(int m, int n) {
-        assert withinBounds(m, n) : "WUBALUBADUBDUB";
+        if (!withinBounds(m, n)) {
+            return;
+        }
+
         int f = toFieldIndex(m, n);
         this.field[f] = true;
         // TODO use it to create AL instead of LL
