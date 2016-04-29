@@ -158,26 +158,37 @@ public class Board {
         return false;
     }
 
-    // public Iterable<Boolean> getRow(int n) {
-    //     ArrayList<Boolean> result = new ArrayList<>(this.N);
-    //     for (int f = n * N; f < n * N + M; f++) {
-    //         result.add(this.field[f]);
-    //     }
-    //     return result;
-    // }
-    //
-    // public Iterable<Boolean> getColumn(int m) {
-    //     ArrayList<Boolean> result = new ArrayList<>(this.M);
-    //     for (int f = m; f < N * M; f+=N) {
-    //         result.add(this.field[f]);
-    //     }
-    //     return result;
-    // }
-    //
-    // public Iterable<Boolean> getDiagonals(int d) {
-    //     ArrayList<Boolean> result = new ArrayList<>(this.M + this.N); // TODO calculate
-    //     return result;
-    // }
+    public boolean isAnyPieceOnDiagonals(int m, int n) {
+        return isAnyPieceOnDiagonals(m, n, M + N);
+    }
+
+    public boolean isAnyPieceOnDiagonals(int m, int n, int l) {
+        while (l != 0) {
+            if (this.withinBounds(m + l, n + l) &&
+                    this.map.get(toFieldIndex(m + l, n + l)) != null) {
+                return true;
+            }
+
+            if (this.withinBounds(m + l, n - l) &&
+                    this.map.get(toFieldIndex(m + l, n - l)) != null) {
+                return true;
+            }
+
+            if (this.withinBounds(m - l, n + l) &&
+                    this.map.get(toFieldIndex(m - l, n + l)) != null) {
+                return true;
+            }
+
+            if (this.withinBounds(m - l, n - l) &&
+                    this.map.get(toFieldIndex(m - l, n - l)) != null) {
+                return true;
+            }
+
+            --l;
+        }
+
+        return false;
+    }
 
     public LinkedList<Location> getFreeLocations() {
         LinkedList<Location> result = new LinkedList<>();
@@ -207,6 +218,10 @@ public class Board {
             builder.append("\n");
         }
         return builder.toString();
+    }
+
+    public int hashCode() {
+        return this.toString().hashCode();
     }
 
     private int toFieldIndex(int m, int n) {

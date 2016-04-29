@@ -12,7 +12,7 @@ import java.util.HashMap;
  *    - Can we replicate input from the finished board?
  *  - Threads?
  */
-public class Solver {
+public class BruteForceSolver {
 
     // TODO use it to break recursion
     private static class Context {
@@ -121,7 +121,12 @@ public class Solver {
                 return false;
             }
             case Diagonal: {
-                break;
+                if (!board.isBlocked(m, n) && !board.isAnyPieceOnDiagonals(m, n)) {
+                    board.addPiece(piece, m, n);
+                    board.addDiagonalBlock(m, n);
+                    return true;
+                }
+                return false;
             }
             case Knight: {
                 if (!board.isBlocked(m, n)

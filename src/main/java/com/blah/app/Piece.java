@@ -15,6 +15,8 @@ final public class Piece {
     private static Piece rook = new Piece("R", Move.Perpendicular);
     private static Piece knight = new Piece("N", Move.Knight);
 
+    private static Piece[] pieces = { king, queen, bishop, rook, knight };
+
     public static Piece getKing() {
         return king;
     }
@@ -33,6 +35,15 @@ final public class Piece {
 
     public static Piece getKnight() {
         return knight;
+    }
+
+    public static Piece bySymbol(String symbol) {
+        for (Piece piece : pieces) {
+            if (symbol.compareTo(piece.getSymbol()) == 0) {
+                return piece;
+            }
+        }
+        return null;
     }
 
     // TODO make it immutable?

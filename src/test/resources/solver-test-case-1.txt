@@ -1,0 +1,17 @@
+Case:    3:3 K:2 Q:0 B:0 R:1 N:0
+Results: 4
+K x K
+x x x
+x R x
+
+K x x
+x x R
+K x x
+
+x x K
+R x x
+x x K
+
+x R x
+x x x
+K x K
