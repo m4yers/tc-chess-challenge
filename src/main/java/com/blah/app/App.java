@@ -7,7 +7,6 @@ import java.util.HashMap;
 public class App {
     public static void main( String[] args ) {
         System.out.println( "Hello Blah!" );
-        // TODO fix non square sizes
         // LinkedList<Board> result = BruteForceSolver.getAllBoards(new Board(6, 6), new HashMap<Piece, Integer>() {
         //     {
         //         put(Piece.getKing(),   2);
@@ -17,7 +16,7 @@ public class App {
         //     }
         // });
 
-        LinkedList<Board> result = BruteForceSolver.getAllBoards(new Board(3, 3), new HashMap<Piece, Integer>() {
+        LinkedList<Board> result = BruteForceSolver.getAllBoards(new Board(2, 3), new HashMap<Piece, Integer>() {
             {
                 put(Piece.getKnight(), 1);
             }

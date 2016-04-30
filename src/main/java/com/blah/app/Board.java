@@ -47,10 +47,6 @@ public class Board {
         this.map = new TreeMap<Integer, Piece>(that.map);
     }
 
-    public boolean withinBounds(int m, int n) {
-        return m >= 0 && n >= 0 && m < M && n < N;
-    }
-
     public void addBlock(int m, int n) {
         if (!withinBounds(m, n)) {
             return;
@@ -224,11 +220,15 @@ public class Board {
         return this.toString().hashCode();
     }
 
+    public boolean withinBounds(int m, int n) {
+        return m >= 0 && n >= 0 && m < M && n < N;
+    }
+
     private int toFieldIndex(int m, int n) {
-        return n * N + m;
+        return n * M + m;
     }
 
     private Location toLocation(int f) {
-        return new Location(f % M, f / N);
+        return new Location(f % M, f / M);
     }
 }
