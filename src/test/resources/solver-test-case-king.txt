@@ -1,0 +1,37 @@
+Case:    3:3 K:1 Q:0 B:0 R:0 N:0
+Results: 9
+K x . 
+x x . 
+. . . 
+
+x K x 
+x x x 
+. . . 
+
+. x K 
+. x x 
+. . . 
+
+x x . 
+K x . 
+x x . 
+
+x x x 
+x K x 
+x x x 
+
+. x x 
+. x K 
+. x x 
+
+. . . 
+x x . 
+K x . 
+
+. . . 
+x x x 
+x K x 
+
+. . . 
+. x x 
+. x K 

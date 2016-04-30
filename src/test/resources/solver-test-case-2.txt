@@ -1,0 +1,41 @@
+Case:    4:4 K:0 Q:0 B:0 R:2 N:4
+Results: 8
+R x x x 
+x N x N 
+x x R x 
+x N x N 
+
+x R x x 
+N x N x 
+x x x R 
+N x N x 
+
+x x R x 
+x N x N 
+R x x x 
+x N x N 
+
+x x x R 
+N x N x 
+x R x x 
+N x N x 
+
+N x N x 
+x R x x 
+N x N x 
+x x x R 
+
+N x N x 
+x x x R 
+N x N x 
+x R x x 
+
+x N x N 
+R x x x 
+x N x N 
+x x R x 
+
+x N x N 
+x x R x 
+x N x N 
+R x x x 

@@ -19,17 +19,9 @@ public class App {
 
         LinkedList<Board> result = BruteForceSolver.getAllBoards(new Board(3, 3), new HashMap<Piece, Integer>() {
             {
-                put(Piece.getKing(),   2);
-                put(Piece.getRook(), 1);
+                put(Piece.getKnight(), 1);
             }
         });
-
-        // LinkedList<Board> result = BruteForceSolver.getAllBoards(new Board(4, 4), new HashMap<Piece, Integer>() {
-        //     {
-        //         put(Piece.getRook(), 2);
-        //         put(Piece.getKnight(), 4);
-        //     }
-        // });
 
         for (Board board : result) {
             System.out.println(board);

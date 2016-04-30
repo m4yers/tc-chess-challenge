@@ -27,7 +27,13 @@ public class TestBruteForceSolver {
     @Parameterized.Parameters
     public static Iterable<ChessTestData> cases() {
         LinkedList<ChessTestData> result = new LinkedList<>();
+        result.add(new ChessTestData("/solver-test-case-king.txt"));
+        result.add(new ChessTestData("/solver-test-case-queen.txt"));
+        result.add(new ChessTestData("/solver-test-case-bishop.txt"));
+        result.add(new ChessTestData("/solver-test-case-rook.txt"));
+        result.add(new ChessTestData("/solver-test-case-knight.txt"));
         result.add(new ChessTestData("/solver-test-case-1.txt"));
+        result.add(new ChessTestData("/solver-test-case-2.txt"));
         return result;
     }
 
@@ -37,10 +43,11 @@ public class TestBruteForceSolver {
         this.data = data;
     }
 
-    // This test will run 4 times since we have 5 parameters defined
     @Test
-    public void testPrimeNumberChecker() {
-        LinkedList<Board> result = BruteForceSolver.getAllBoards(new Board(data.M, data.N), new HashMap<Piece, Integer>() {
+    public void testSolver() {
+        LinkedList<Board> result = BruteForceSolver.getAllBoards(
+            new Board(data.M, data.N),
+            new HashMap<Piece, Integer>() {
             {
                 put(Piece.getKing(), data.kings);
                 put(Piece.getQueen(), data.queens);
@@ -49,8 +56,9 @@ public class TestBruteForceSolver {
                 put(Piece.getKnight(), data.knights);
             }
         });
-        Collections.sort(data.boards, (a, b) -> a.hashCode() - b.hashCode());
-        Collections.sort(result, (a, b) -> a.hashCode() - b.hashCode());
+
+        Collections.sort(data.boards, (a, b) -> a.hashCode() < b.hashCode() ? -1 : 1);
+        Collections.sort(result, (a, b) -> a.hashCode() < b.hashCode() ? -1 : 1);
 
         assertEquals(data.boards.size(), result.size());
 
