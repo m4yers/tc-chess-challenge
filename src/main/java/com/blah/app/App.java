@@ -23,6 +23,7 @@ public class App {
     @Option(name = "-p", aliases = {"--print"}, usage = "Print solved boards to screen")
     private boolean printToScreen;
 
+    //TODO
     @Option(name = "-f", aliases = {"--print-to-file"}, metaVar = "FILE", usage = "Print solved boards to FILE")
     private boolean printToFile;
 
