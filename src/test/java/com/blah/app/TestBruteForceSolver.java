@@ -45,17 +45,17 @@ public class TestBruteForceSolver {
 
     @Test
     public void testSolver() {
-        LinkedList<Board> result = CachingSolver.getAllBoards(
-            new Board(data.M, data.N, data.kings + data.queens + data.bishops + data.rooks + data.knights),
-            new HashMap<Piece, Integer>() {
-            {
-                put(Piece.getKing(), data.kings);
-                put(Piece.getQueen(), data.queens);
-                put(Piece.getBishop(), data.bishops);
-                put(Piece.getRook(), data.rooks);
-                put(Piece.getKnight(), data.knights);
-            }
-        });
+        HashMap<Piece, Integer> freq = new HashMap<>();
+        freq.put(Piece.getKing(),   data.kings);
+        freq.put(Piece.getQueen(),  data.queens);
+        freq.put(Piece.getBishop(), data.bishops);
+        freq.put(Piece.getRook(),   data.rooks);
+        freq.put(Piece.getKnight(), data.knights);
+
+        LinkedList<Board> result = new LinkedList<>();
+        Solver.Settings settings = new Solver.Settings(false, false, null, result);
+        CachingSolver solver = new CachingSolver(data.M, data.N, freq, settings, 1000);
+        solver.solve();
 
         Collections.sort(data.boards, (a, b) -> a.hashCode() < b.hashCode() ? -1 : 1);
         Collections.sort(result, (a, b) -> a.hashCode() < b.hashCode() ? -1 : 1);

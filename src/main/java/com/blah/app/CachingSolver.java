@@ -7,94 +7,42 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 
-public class CachingSolver {
+public class CachingSolver extends Solver {
 
-    private static class ContextPool {
+    private Board.Pool boardPool;
+    private ContextPool contextPool;
+    private HashMap<String, LinkedList<Context>> cache;
 
-        public ArrayList<Context> pool = new ArrayList<>();
+    public CachingSolver(int M, int N, HashMap<Piece, Integer> freq, Settings settings, int poolSize) {
+        super(M, N, freq, settings);
 
-        public ContextPool(int S) {
-            this.pool = new ArrayList<>(S);
-            for (int i = 0; i < S; i++) {
-                pool.add(new Context(null, -1, -1));
-            }
-        }
-
-        public void put(Context context) {
-            pool.add(context);
-        }
-
-        public Context get(Board board, int inputIndex, int freeIndex) {
-            if (pool.size() == 0)  {
-                return new Context(board, inputIndex, freeIndex);
-            } else {
-                Context context = pool.remove(pool.size() - 1);
-                context.board = board;
-                context.inputIndex = inputIndex;
-                context.freeIndex = freeIndex;
-                return context;
-            }
-        }
+        this.boardPool = new Board.Pool(poolSize, this.M, this.N, this.P);
+        this.contextPool = new ContextPool(poolSize);
+        this.cache = new HashMap<>();
     }
 
-    private static class Context {
-        public Board board;
-        public int inputIndex;
-        public int freeIndex;
-
-        public Context(
-            Board board,
-            int inputIndex,
-            int freeIndex) {
-
-            this.board = board;
-            this.inputIndex = inputIndex;
-            this.freeIndex = freeIndex;
-        }
-
-        public Context(Context that) {
-            this.board = new Board(that.board);
-            this.inputIndex = that.inputIndex;
-            this.freeIndex = that.freeIndex;
-        }
-    }
-
-    public static LinkedList<Board> getAllBoards( Board board, HashMap<Piece, Integer> inputList) {
-        LinkedList<Board> result = new LinkedList<>();
-
-        int total = 0;
-        for (Piece piece : inputList.keySet()) {
-            total += inputList.get(piece);
-        }
+    public void solve() {
 
         LinkedList<LinkedList<Piece>> inputs = new LinkedList<>();
-        permuteInput(inputList, total, new LinkedList<>(), inputs);
+        permuteInput(this.freq, this.P, new LinkedList<>(), inputs);
 
-        HashMap<String, LinkedList<Context>> cache = new HashMap<>();
-        int poolSize = 1500;
-        Board.Pool boardPool = new Board.Pool(poolSize, board.M(), board.N(), board.P());
-        ContextPool contextPool = new ContextPool(poolSize);
+        // HashMap<String, LinkedList<Piece>> set = new HashMap<>();
+        // for (LinkedList<Piece> pieces : inputs) {
+        //     String key = getCacheKey(pieces, 0, pieces.size());
+        //     String reversed = new StringBuilder(key).reverse().toString();
+        //     if (!set.containsKey(reversed)) {
+        //         set.put(key, pieces);
+        //     }
+        // }
 
-        // System.out.println("Inputs: " + inputs.size());
-
-        HashMap<String, LinkedList<Piece>> set = new HashMap<>();
-        for (LinkedList<Piece> pieces : inputs) {
-            String key = getCacheKey(pieces, 0, pieces.size());
-            String reversed = new StringBuilder(key).reverse().toString();
-            if (!set.containsKey(reversed)) {
-                set.put(key, pieces);
-            }
-        }
-
-        // System.out.println("Inputs: " + set.keySet().size());
-
-        // for (LinkedList<Piece> pieces : set.values()) {
         LinkedList<Piece> prev = null;
         for (LinkedList<Piece> pieces : inputs) {
 
             // reclaiming the cache
             // assuming there is an order in inputs
             if (prev != null) {
+                debug("pool.board   " + boardPool.size());
+                debug("pool.context " + contextPool.size());
                 for (int i = 0; i < prev.size(); i++) {
 
                     if (pieces.get(i) == prev.get(i)) {
@@ -111,53 +59,38 @@ public class CachingSolver {
                                 contextPool.put(context);
                                 count++;
                             }
-                            System.out.println("reclaime " + count + " from " + k);
-                        } else {
-                            System.out.println("no reclaime ffor " + k);
+                            debug("cache.reclaime " + count + " from " + k);
                         }
                     }
 
-                    System.out.println("pool: " + boardPool.size());
-
                     break;
                 }
+
+                debug("pool.board   " + boardPool.size());
+                debug("pool.context " + contextPool.size());
             }
 
 
             prev = pieces;
 
-            getAllBoards(
-                board,
-                pieces,
-                board.getFreeLocations(),
-                boardPool,
-                contextPool,
-                cache,
-                result);
-        }
+            Board board = boardPool.get();
 
-        return result;
+            getAllBoards( board, pieces, board.getFreeLocations());
+        }
     }
 
-    public static void getAllBoards(
+    public void getAllBoards(
         Board board,
         LinkedList<Piece> inputList,
-        ArrayList<Board.Location> freeList,
-        Board.Pool boardPool,
-        ContextPool contextPool,
-        HashMap<String, LinkedList<Context>> cache,
-        LinkedList<Board> result) {
+        ArrayList<Board.Location> freeList) {
 
         LinkedList<Context> queue = new LinkedList<>();
 
         String key = getCacheKey(inputList, 0, inputList.size());
         LinkedList<Context> record = null;
 
-        // System.out.println("input " + inputList);
-
         for (int i = key.length() - 1; i > 0; i--) {
             String sub = key.substring(0, i);
-            // System.out.println("try " + sub);
             if (cache.containsKey(sub)) {
                 key = sub;
                 record = queue = new LinkedList<>(cache.get(key));
@@ -166,12 +99,12 @@ public class CachingSolver {
         }
 
         if (queue.size() == 0) {
-            System.out.println("cache miss " + key);
+            debug("cache.miss " + key);
             key = "";
             queue.add(contextPool.get(board, 0, 0));
             record = new LinkedList<>();
         } else {
-            System.out.println("cache hit " + key);
+            debug("cache.hit " + key);
         }
 
         while (queue.size() != 0) {
@@ -186,10 +119,8 @@ public class CachingSolver {
 
             // we moved to next generation
             if (key.length() != inputIndex)  {
-                // System.out.println("save " + key + ", " + record.size() + " records");
-                // System.out.println("current " + current);
                 if (!cache.containsKey(key) && record != null && record.size() != 0) {
-                    System.out.println("cache save " + key + " " + record.size());
+                    debug("cache.save " + key + " " + record.size());
                     cache.put(key, record);
                 }
                 String newKey = getCacheKey(inputList, 0, inputIndex);
@@ -217,11 +148,10 @@ public class CachingSolver {
                     if (inputIndex == inputSize) {
                         count++;
                         if (count % 1000000 == 0) {
-                            System.out.println("------------------results: " + count);
+                            debug("-----------------------------------results: " + count);
                         }
-                        // cloneBoard.toString(builder);
-                        // boardPool.put(cloneBoard);
-                        result.add(cloneBoard);
+                        gotBoard(cloneBoard);
+                        boardPool.put(cloneBoard);
                     } else {
                         queue.addLast(contextPool.get(cloneBoard, inputIndex, freeIndex));
                         if (record != null) {
@@ -232,17 +162,12 @@ public class CachingSolver {
                     boardPool.put(cloneBoard);
                 }
             }
-
-            // if (inputIndex == inputSize)  {
-            //     boardPool.put(board);
-            // }
         }
     }
 
-    public static int count = 0;
-    // public static StringBuilder builder = new StringBuilder(new Board(0, 0, 0).toString().length() * 20000000);
+    public int count = 0;
 
-    public static boolean tryToPlace(Board board, Piece piece, Board.Location loc) {
+    public boolean tryToPlace(Board board, Piece piece, Board.Location loc) {
         int m = loc.m();
         int n = loc.n();
 
@@ -320,7 +245,7 @@ public class CachingSolver {
         return false;
     }
 
-    private static String getCacheKey(List<Piece> pieces, int start, int end) {
+    private String getCacheKey(List<Piece> pieces, int start, int end) {
         String key = "";
 
         for (int i = start; i < end; i++) {
@@ -330,7 +255,7 @@ public class CachingSolver {
         return key;
     }
 
-    private static void permuteInput(
+    private void permuteInput(
         HashMap<Piece, Integer> freq,
         int rest,
         LinkedList<Piece> current,
@@ -354,4 +279,57 @@ public class CachingSolver {
         }
     }
 
+    private static class ContextPool {
+
+        public ArrayList<Context> pool = new ArrayList<>();
+
+        public ContextPool(int S) {
+            this.pool = new ArrayList<>(S);
+            for (int i = 0; i < S; i++) {
+                pool.add(new Context(null, -1, -1));
+            }
+        }
+
+        public int size() {
+            return pool.size();
+        }
+
+        public void put(Context context) {
+            pool.add(context);
+        }
+
+        public Context get(Board board, int inputIndex, int freeIndex) {
+            if (pool.size() == 0)  {
+                return new Context(board, inputIndex, freeIndex);
+            } else {
+                Context context = pool.remove(pool.size() - 1);
+                context.board = board;
+                context.inputIndex = inputIndex;
+                context.freeIndex = freeIndex;
+                return context;
+            }
+        }
+    }
+
+    private static class Context {
+        public Board board;
+        public int inputIndex;
+        public int freeIndex;
+
+        public Context(
+            Board board,
+            int inputIndex,
+            int freeIndex) {
+
+            this.board = board;
+            this.inputIndex = inputIndex;
+            this.freeIndex = freeIndex;
+        }
+
+        public Context(Context that) {
+            this.board = new Board(that.board);
+            this.inputIndex = that.inputIndex;
+            this.freeIndex = that.freeIndex;
+        }
+    }
 }

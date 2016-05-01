@@ -40,6 +40,7 @@ public class Board {
                 board.N = this.N;
                 board.P = this.P;
                 board.size = this.M * this.N;
+                board.blocked = 0;
                 Arrays.fill(board.field, false);
                 Arrays.fill(board.pieces, null);
                 return board;
@@ -54,6 +55,7 @@ public class Board {
                 board.M = that.M;
                 board.N = that.N;
                 board.P = that.P;
+                board.blocked = that.blocked;
                 board.size = that.size;
                 for (int i = 0; i < that.size; i++) {
                     board.field[i] = that.field[i];
@@ -101,6 +103,7 @@ public class Board {
         this.N = N;
         this.P = P;
         this.size = M * N;
+        this.blocked = 0;
         this.field = new Boolean[this.size];
         Arrays.fill(this.field, false);
         this.pieces = new Piece[this.size];
@@ -115,38 +118,16 @@ public class Board {
         this.pieces = that.pieces.clone();
     }
 
-    // public Board getReflection() {
-    //     Board board = new Board(this);
-    //     rotate180(board.field, this.M, this.N);
-    //     rotate180(board.pieces, this.M, this.N);
-    //     return board;
-    // }
-
-    // private <T> void rotate180(T[] array, int m, int n) {
-    //     for (int layer = 0; layer < n / 2; layer++) {
-    //         int first = layer;
-    //         int last = n - 1 - layer;
-    //         for (int i = first; i < last; i++) {
-    //             int offset = i - first;
-    //             T top = array[toFieldIndex(first, i)];
-    //             array[toFieldIndex(first, i)] = array[toFieldIndex(last, last - offset)];
-    //             array[toFieldIndex(last, last - offset)] = top;
-    //             T leftBottom = array[toFieldIndex(last - offset, first)];
-    //             array[toFieldIndex(last - offset, first)] = array[toFieldIndex(i, last)];
-    //             array[toFieldIndex(i, last)] = leftBottom;
-    //         }
-    //     }
-    // }
-
     public void addBlock(int m, int n) {
         if (!withinBounds(m, n)) {
             return;
         }
 
         int f = toFieldIndex(m, n);
-        this.field[f] = true;
-        // TODO use it to create AL instead of LL
-        this.blocked++;
+        if (!this.field[f]) {
+            this.field[f] = true;
+            this.blocked++;
+        }
     }
 
     public void addPerpendicularBlock(int m, int n) {
