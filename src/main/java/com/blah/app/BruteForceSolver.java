@@ -1,59 +1,22 @@
 package com.blah.app;
 
 import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.HashMap;
 
-/*
- * Thoughts on optimization:
- *  - The problem is generalization of 8Q problem thus we could use rotation and reflections
- * to produce more solutions(and failures) from a single input.
- *    - How do we drop used inputs?
- *    - how do we exit dead(used) solving branches?
- *    - Can we replicate input from the finished board?
- *  - Threads?
- */
 public class BruteForceSolver {
 
-    // TODO use it to break recursion
-    private static class Context {
-        public Board board;
-        public LinkedList<Piece> input;
-        public int inputIndex;
-        public LinkedList<Board.Location> frees;
-        public int freesIndex;
-
-        public Context(
-            Board board,
-            LinkedList<Piece> input,
-            int inputIndex,
-            LinkedList<Board.Location> frees,
-            int freesIndex) {
-
-            this.board = board;
-            this.input = input;
-            this.inputIndex = inputIndex;
-            this.frees = frees;
-            this.freesIndex = freesIndex;
-        }
-
-        public Context(Context that) {
-            this.board = new Board(that.board);
-            this.input = new LinkedList<>(input);
-            this.inputIndex = inputIndex;
-            this.frees = new LinkedList<>(frees);
-            this.freesIndex = freesIndex;
-        }
-    }
-
-    public static LinkedList<Board> getAllBoards( Board board, HashMap<Piece, Integer> input) {
+    public static LinkedList<Board> getAllBoards( Board board, HashMap<Piece, Integer> inputList) {
         LinkedList<Board> result = new LinkedList<>();
 
         int total = 0;
-        for (Piece piece : input.keySet()) {
-            total += input.get(piece);
+        for (Piece piece : inputList.keySet()) {
+            total += inputList.get(piece);
         }
+
         LinkedList<LinkedList<Piece>> inputs = new LinkedList<>();
-        permuteInput(input, total, new LinkedList<>(), inputs);
+        permuteInput(inputList, total, new LinkedList<>(), inputs);
+
         for (LinkedList<Piece> i : inputs) {
             getAllBoards(board, i, board.getFreeLocations(), result);
         }
@@ -72,6 +35,8 @@ public class BruteForceSolver {
             return;
         }
 
+        // Permute: we can drop reflected inputs and substitute them with reflected boards
+
         for (Piece p : freq.keySet()) {
             int v = freq.get(p);
             if (v > 0) {
@@ -86,24 +51,25 @@ public class BruteForceSolver {
 
     public static void getAllBoards(
         Board board,
-        LinkedList<Piece> input,
-        LinkedList<Board.Location> frees,
+        LinkedList<Piece> inputList,
+        ArrayList<Board.Location> freeList,
         LinkedList<Board> list) {
 
-        if (input.size() == 0) {
+        if (inputList.size() == 0) {
             list.add(board);
             return;
         }
 
-        Piece piece = input.removeFirst();
-        while (frees.size() != 0) {
+        Piece piece = inputList.removeFirst();
+        while (freeList.size() != 0) {
             // FIXME the free list is changed every time we add a thing, need to request it again
-            Board.Location loc = frees.removeFirst();
+            // actually it is ok, since requesting new list is O(MxN) and scipping used is ~O(M)
+            Board.Location loc = freeList.remove(0);
             Board clone = new Board(board);
             if (tryToPlace(clone, piece, loc.m(), loc.n())) {
                 // TODO use queue here to break recursion like BFS
-                // TODO to escape input and frees cloning, use indices
-                getAllBoards(clone, new LinkedList<>(input), new LinkedList<>(frees), list);
+                // TODO to escape inputList and freeList cloning, use indices
+                getAllBoards(clone, new LinkedList<>(inputList), new ArrayList<>(freeList), list);
             }
         }
     }

@@ -45,8 +45,8 @@ public class TestBruteForceSolver {
 
     @Test
     public void testSolver() {
-        LinkedList<Board> result = BruteForceSolver.getAllBoards(
-            new Board(data.M, data.N),
+        LinkedList<Board> result = CachingSolver.getAllBoards(
+            new Board(data.M, data.N, data.kings + data.queens + data.bishops + data.rooks + data.knights),
             new HashMap<Piece, Integer>() {
             {
                 put(Piece.getKing(), data.kings);
@@ -105,7 +105,7 @@ public class TestBruteForceSolver {
 
             for (int i = 0; i < resultsNum && scanner.hasNextLine(); i++) {
                 scanner.nextLine();
-                Board board = new Board(M, N);
+                Board board = new Board(M, N, kings + queens + bishops + rooks + knights);
                 for (int n = 0; n < N; n++) {
                     String line = scanner.nextLine();
                     String[] tokens = line.split("\\s+");
