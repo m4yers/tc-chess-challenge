@@ -146,10 +146,6 @@ public class CachingSolver extends Solver {
                 if (tryToPlace(cloneBoard, piece, loc)) {
 
                     if (inputIndex == inputSize) {
-                        count++;
-                        if (count % 1000000 == 0) {
-                            debug("-----------------------------------results: " + count);
-                        }
                         gotBoard(cloneBoard);
                         boardPool.put(cloneBoard);
                     } else {
@@ -164,8 +160,6 @@ public class CachingSolver extends Solver {
             }
         }
     }
-
-    public int count = 0;
 
     public boolean tryToPlace(Board board, Piece piece, Board.Location loc) {
         int m = loc.m();

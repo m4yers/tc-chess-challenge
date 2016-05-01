@@ -14,7 +14,7 @@ public abstract class Solver {
         public boolean printToScreen;
         public Writer out;
         public LinkedList<Board> results;
-        
+
 
         public Settings(boolean debug, boolean printToScreen, Writer out, LinkedList<Board> results) {
             this.debug = debug;
@@ -53,6 +53,10 @@ public abstract class Solver {
 
     protected void gotBoard(Board board) {
         this.totalBoards++;
+
+        if (this.totalBoards() % 1000000 == 0) {
+            debug("-----------------------------------results: " + this.totalBoards());
+        }
 
         if (this.settings.printToScreen) {
             System.out.println(board);
