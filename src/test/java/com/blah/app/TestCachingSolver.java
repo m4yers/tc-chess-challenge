@@ -22,7 +22,7 @@ import org.junit.runner.RunWith;
 
 @RunWith(Parameterized.class)
 @SuppressWarnings("serial")
-public class TestBruteForceSolver {
+public class TestCachingSolver {
 
     @Parameterized.Parameters
     public static Iterable<ChessTestData> cases() {
@@ -39,7 +39,7 @@ public class TestBruteForceSolver {
 
     public ChessTestData data;
 
-    public TestBruteForceSolver(ChessTestData data) {
+    public TestCachingSolver(ChessTestData data) {
         this.data = data;
     }
 
@@ -79,7 +79,7 @@ public class TestBruteForceSolver {
 
         public ChessTestData(String file) {
 
-            InputStream is = TestBruteForceSolver.class.getResourceAsStream(file);
+            InputStream is = TestCachingSolver.class.getResourceAsStream(file);
             Scanner scanner = new Scanner(is);
             MatchResult match;
 
