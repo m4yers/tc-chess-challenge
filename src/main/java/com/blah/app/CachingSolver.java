@@ -26,17 +26,17 @@ public class CachingSolver extends Solver {
         LinkedList<LinkedList<Piece>> inputs = new LinkedList<>();
         permuteInput(this.freq, this.P, new LinkedList<>(), inputs);
 
-        // HashMap<String, LinkedList<Piece>> set = new HashMap<>();
-        // for (LinkedList<Piece> pieces : inputs) {
-        //     String key = getCacheKey(pieces, 0, pieces.size());
-        //     String reversed = new StringBuilder(key).reverse().toString();
-        //     if (!set.containsKey(reversed)) {
-        //         set.put(key, pieces);
-        //     }
-        // }
+        HashMap<String, LinkedList<Piece>> set = new HashMap<>();
+        for (LinkedList<Piece> pieces : inputs) {
+            String key = getCacheKey(pieces, 0, pieces.size());
+            String reversed = new StringBuilder(key).reverse().toString();
+            if (!set.containsKey(reversed)) {
+                set.put(key, pieces);
+            }
+        }
 
         LinkedList<Piece> prev = null;
-        for (LinkedList<Piece> pieces : inputs) {
+        for (LinkedList<Piece> pieces : set.values()) {
 
             // reclaiming the cache
             // assuming there is an order in inputs
@@ -146,6 +146,10 @@ public class CachingSolver extends Solver {
                 if (tryToPlace(cloneBoard, piece, loc)) {
 
                     if (inputIndex == inputSize) {
+                        if (!isPalyndrome(key)) {
+                            Board reflection = cloneBoard.getReflection();
+                            gotBoard(reflection);
+                        }
                         gotBoard(cloneBoard);
                         boardPool.put(cloneBoard);
                     } else {
@@ -159,6 +163,10 @@ public class CachingSolver extends Solver {
                 }
             }
         }
+    }
+
+    private boolean isPalyndrome (String string) {
+        return string.compareTo(new StringBuilder(string).reverse().toString()) == 0;
     }
 
     public boolean tryToPlace(Board board, Piece piece, Board.Location loc) {

@@ -118,6 +118,10 @@ public class Board {
         this.pieces = that.pieces.clone();
     }
 
+    public Piece[] pieces() {
+        return this.pieces;
+    }
+
     public void addBlock(int m, int n) {
         if (!withinBounds(m, n)) {
             return;
@@ -127,6 +131,29 @@ public class Board {
         if (!this.field[f]) {
             this.field[f] = true;
             this.blocked++;
+        }
+    }
+
+    public Board getReflection() {
+        Board board = new Board(this);
+        rotate180(board.field, this.M, this.N);
+        rotate180(board.pieces, this.M, this.N);
+        return board;
+    }
+
+    private <T> void rotate180(T[] array, int m, int n) {
+        for (int layer = 0; layer < n / 2; layer++) {
+            int first = layer;
+            int last = n - 1 - layer;
+            for (int i = first; i < last; i++) {
+                int offset = i - first;
+                T top = array[toFieldIndex(first, i)];
+                array[toFieldIndex(first, i)] = array[toFieldIndex(last, last - offset)];
+                array[toFieldIndex(last, last - offset)] = top;
+                T leftBottom = array[toFieldIndex(last - offset, first)];
+                array[toFieldIndex(last - offset, first)] = array[toFieldIndex(i, last)];
+                array[toFieldIndex(i, last)] = leftBottom;
+            }
         }
     }
 
