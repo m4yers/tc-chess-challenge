@@ -54,7 +54,8 @@ public class TestCachingSolver {
 
         LinkedList<Board> result = new LinkedList<>();
         Solver.Settings settings = new Solver.Settings(false, false, null, result);
-        CachingSolver solver = new CachingSolver(data.M, data.N, freq, settings, 1000);
+        Solver solver = new CachingSolver(data.M, data.N, freq, settings, 1000);
+        // Solver solver = new BruteForceSolver(data.M, data.N, freq, settings);
         solver.solve();
 
         Collections.sort(data.boards, (a, b) -> a.hashCode() < b.hashCode() ? -1 : 1);

@@ -108,7 +108,7 @@ public class App {
             break;
         }
         case "bruteforce": {
-            solver = new CachingSolver(this.M, this.N, freq, settings, this.poolSize);
+            solver = new BruteForceSolver(this.M, this.N, freq, settings);
             break;
         }
         }

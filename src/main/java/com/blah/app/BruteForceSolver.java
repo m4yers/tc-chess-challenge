@@ -4,28 +4,25 @@ import java.util.LinkedList;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class BruteForceSolver {
+public class BruteForceSolver extends Solver {
 
-    public static LinkedList<Board> getAllBoards( Board board, HashMap<Piece, Integer> inputList) {
-        LinkedList<Board> result = new LinkedList<>();
+    public BruteForceSolver(int M, int N, HashMap<Piece, Integer> freq, Settings settings) {
+        super(M, N, freq, settings);
+    }
 
-        int total = 0;
-        for (Piece piece : inputList.keySet()) {
-            total += inputList.get(piece);
-        }
+    public void solve() {
+        Board board = new Board(this.M, this.N, this.P);
 
         LinkedList<LinkedList<Piece>> inputs = new LinkedList<>();
-        permuteInput(inputList, total, new LinkedList<>(), inputs);
+        permuteInput(this.freq, this.P, new LinkedList<>(), inputs);
 
         for (LinkedList<Piece> i : inputs) {
-            getAllBoards(board, i, board.getFreeLocations(), result);
+            getAllBoards(board, i, board.getFreeLocations());
         }
-
-        return result;
     }
 
 
-    private static void permuteInput(
+    private void permuteInput(
         HashMap<Piece, Integer> freq,
         int rest,
         LinkedList<Piece> current,
@@ -34,8 +31,6 @@ public class BruteForceSolver {
             list.add(current);
             return;
         }
-
-        // Permute: we can drop reflected inputs and substitute them with reflected boards
 
         for (Piece p : freq.keySet()) {
             int v = freq.get(p);
@@ -49,14 +44,13 @@ public class BruteForceSolver {
         }
     }
 
-    public static void getAllBoards(
+    public void getAllBoards(
         Board board,
         LinkedList<Piece> inputList,
-        ArrayList<Board.Location> freeList,
-        LinkedList<Board> list) {
+        ArrayList<Board.Location> freeList) {
 
         if (inputList.size() == 0) {
-            list.add(board);
+            gotBoard(board);
             return;
         }
 
@@ -69,12 +63,12 @@ public class BruteForceSolver {
             if (tryToPlace(clone, piece, loc.m(), loc.n())) {
                 // TODO use queue here to break recursion like BFS
                 // TODO to escape inputList and freeList cloning, use indices
-                getAllBoards(clone, new LinkedList<>(inputList), new ArrayList<>(freeList), list);
+                getAllBoards(clone, new LinkedList<>(inputList), new ArrayList<>(freeList));
             }
         }
     }
 
-    public static boolean tryToPlace(Board board, Piece piece, int m, int n) {
+    public boolean tryToPlace(Board board, Piece piece, int m, int n) {
         for (Piece.Move move : piece.getMoves()) {
             switch (move) {
             case Perpendicular: {
