@@ -52,6 +52,7 @@ public abstract class Solver {
     }
 
     protected void gotBoard(Board board) {
+
         this.totalBoards++;
 
         if (this.totalBoards() % 1000000 == 0) {

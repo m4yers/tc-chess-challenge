@@ -25,11 +25,11 @@ final public class Piece {
         King
     };
 
-    private static Piece king = new Piece("K", Move.King);
-    private static Piece queen = new Piece("Q", Move.Perpendicular, Move.Diagonal);
-    private static Piece bishop = new Piece("B", Move.Diagonal);
-    private static Piece rook = new Piece("R", Move.Perpendicular);
-    private static Piece knight = new Piece("N", Move.Knight);
+    private static Piece king = new Piece("K");
+    private static Piece queen = new Piece("Q");
+    private static Piece bishop = new Piece("B");
+    private static Piece rook = new Piece("R");
+    private static Piece knight = new Piece("N");
 
     private static Piece[] pieces = { king, queen, bishop, rook, knight };
 
@@ -62,17 +62,10 @@ final public class Piece {
         return null;
     }
 
-    // TODO make it immutable?
-    final private Move[] moves;
     final String symbol;
 
-    private Piece(String symbol, Move...moves) {
+    private Piece(String symbol) {
         this.symbol = symbol;
-        this.moves = moves.clone();
-    }
-
-    public Move[] getMoves() {
-        return this.moves.clone();
     }
 
     public String getSymbol() {

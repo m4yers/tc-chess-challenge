@@ -344,83 +344,82 @@ public class ThreadingSolver extends Solver {
          * The method tries to place the piece on the board for a given location. It simply iterates
          * over piece's type moves and applies board transformation accordingly
          */
-        public boolean tryToPlace(Board board, Piece piece, Board.Location loc) {
-            int m = loc.m();
-            int n = loc.n();
+    public boolean tryToPlace(Board board, Piece piece, Board.Location loc) {
+        int m = loc.m();
+        int n = loc.n();
 
-            for (Piece.Move move : piece.getMoves()) {
-                switch (move) {
-                case Perpendicular: {
-                    if (
-                        !board.isBlocked(loc) &&
-                        !board.isAnyPieceOnRow(n) &&
-                        !board.isAnyPieceOnColumn(m)) {
+        if (piece == Piece.getQueen()) {
+            if (
+                !board.isBlocked(loc) &&
+                !board.isAnyPieceOnRow(n) &&
+                !board.isAnyPieceOnColumn(m) &&
+                !board.isAnyPieceOnDiagonals(m, n)) {
 
-                        board.addPiece(piece, m, n);
-                        board.addPerpendicularBlock(m, n);
-                        return true;
-                    }
-                    return false;
-                }
-                case Diagonal: {
-                    if (!board.isBlocked(loc) &&
-                            !board.isAnyPieceOnDiagonals(m, n)) {
-
-                        board.addPiece(piece, m, n);
-                        board.addDiagonalBlock(m, n);
-                        return true;
-                    }
-                    return false;
-                }
-                case Knight: {
-                    if (!board.isBlocked(loc)
-                            && !board.isAnyPieceAt(m - 2, n - 1)
-                            && !board.isAnyPieceAt(m - 1, n - 2)
-                            && !board.isAnyPieceAt(m + 2, n - 1)
-                            && !board.isAnyPieceAt(m + 1, n - 2)
-                            && !board.isAnyPieceAt(m - 2, n + 1)
-                            && !board.isAnyPieceAt(m - 1, n + 2)
-                            && !board.isAnyPieceAt(m + 2, n + 1)
-                            && !board.isAnyPieceAt(m + 1, n + 2)
-                            && !board.isAnyPieceAt(m, n)) {
-                        board.addPiece(piece, m, n);
-                        board.addBlock(m - 2, n - 1);
-                        board.addBlock(m - 1, n - 2);
-                        board.addBlock(m + 2, n - 1);
-                        board.addBlock(m + 1, n - 2);
-                        board.addBlock(m - 2, n + 1);
-                        board.addBlock(m - 1, n + 2);
-                        board.addBlock(m + 2, n + 1);
-                        board.addBlock(m + 1, n + 2);
-                        return true;
-                    }
-                    return false;
-                }
-                case King: {
-                    if (!board.isBlocked(loc)
-                            && !board.isAnyPieceAt(m, n)
-                            && !board.isAnyPieceAt(m, n - 1)
-                            && !board.isAnyPieceAt(m, n + 1)
-                            && !board.isAnyPieceAt(m - 1, n)
-                            && !board.isAnyPieceAt(m + 1, n)
-                            && !board.isAnyPieceAt(m - 1, n - 1)
-                            && !board.isAnyPieceAt(m + 1, n - 1)
-                            && !board.isAnyPieceAt(m - 1, n + 1)
-                            && !board.isAnyPieceAt(m + 1, n + 1)) {
-                        board.addPiece(piece, m, n);
-                        board.addPerpendicularBlock(m, n, 1);
-                        board.addDiagonalBlock(m, n, 1);
-                        return true;
-                    }
-                    return false;
-                }
-                default: {
-                    throw new IllegalArgumentException();
-                }
-                }
+                board.addPiece(piece, m, n);
+                board.addPerpendicularBlock(m, n);
+                return true;
             }
+        } else if (piece == Piece.getKing()) {
+            if (!board.isBlocked(loc)
+                    && !board.isAnyPieceAt(m, n)
+                    && !board.isAnyPieceAt(m, n - 1)
+                    && !board.isAnyPieceAt(m, n + 1)
+                    && !board.isAnyPieceAt(m - 1, n)
+                    && !board.isAnyPieceAt(m + 1, n)
+                    && !board.isAnyPieceAt(m - 1, n - 1)
+                    && !board.isAnyPieceAt(m + 1, n - 1)
+                    && !board.isAnyPieceAt(m - 1, n + 1)
+                    && !board.isAnyPieceAt(m + 1, n + 1)) {
+                board.addPiece(piece, m, n);
+                board.addPerpendicularBlock(m, n, 1);
+                board.addDiagonalBlock(m, n, 1);
+                return true;
+            }
+        } else if (piece == Piece.getBishop()) {
+            if (!board.isBlocked(loc) &&
+                    !board.isAnyPieceOnDiagonals(m, n)) {
+
+                board.addPiece(piece, m, n);
+                board.addDiagonalBlock(m, n);
+                return true;
+            }
+        } else if (piece == Piece.getRook()) {
+            if (
+                !board.isBlocked(loc) &&
+                !board.isAnyPieceOnRow(n) &&
+                !board.isAnyPieceOnColumn(m)) {
+
+                board.addPiece(piece, m, n);
+                board.addPerpendicularBlock(m, n);
+                return true;
+            }
+        } else if (piece == Piece.getKnight()) {
+            if (!board.isBlocked(loc)
+                    && !board.isAnyPieceAt(m - 2, n - 1)
+                    && !board.isAnyPieceAt(m - 1, n - 2)
+                    && !board.isAnyPieceAt(m + 2, n - 1)
+                    && !board.isAnyPieceAt(m + 1, n - 2)
+                    && !board.isAnyPieceAt(m - 2, n + 1)
+                    && !board.isAnyPieceAt(m - 1, n + 2)
+                    && !board.isAnyPieceAt(m + 2, n + 1)
+                    && !board.isAnyPieceAt(m + 1, n + 2)
+                    && !board.isAnyPieceAt(m, n)) {
+                board.addPiece(piece, m, n);
+                board.addBlock(m - 2, n - 1);
+                board.addBlock(m - 1, n - 2);
+                board.addBlock(m + 2, n - 1);
+                board.addBlock(m + 1, n - 2);
+                board.addBlock(m - 2, n + 1);
+                board.addBlock(m - 1, n + 2);
+                board.addBlock(m + 2, n + 1);
+                board.addBlock(m + 1, n + 2);
+                return true;
+            }
+        } else {
             return false;
         }
+        return false;
+    }
 
         private void debug(String message) {
             if (this.debug) {
