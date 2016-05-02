@@ -1,5 +1,21 @@
 package com.blah.app;
 
+/*
+ *
+ *   ."".    ."",
+ *   |  |   /  /
+ *   |  |  /  /
+ *   |  | /  /
+ *   |  |/  ;-._
+ *   }  ` _/  / ;
+ *   |  /` ) /  /
+ *   | /  /_/\_/\
+ *   |/  /      |
+ *   (  ' \ '-  |
+ *    \    `.  /
+ *     |      |
+ *     |      | Peace Bro;)
+ */
 final public class Piece {
 
     public static enum Move {

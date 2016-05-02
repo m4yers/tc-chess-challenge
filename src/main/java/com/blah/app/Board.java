@@ -5,22 +5,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Arrays;
 
-/*
- *
- *   ."".    ."",
- *   |  |   /  /
- *   |  |  /  /
- *   |  | /  /
- *   |  |/  ;-._
- *   }  ` _/  / ;
- *   |  /` ) /  /
- *   | /  /_/\_/\
- *   |/  /      |
- *   (  ' \ '-  |
- *    \    `.  /
- *     |      |
- *     |      | Peace Bro;)
- */
 public class Board {
 
     public static class Location extends Pair<Integer, Integer> {
