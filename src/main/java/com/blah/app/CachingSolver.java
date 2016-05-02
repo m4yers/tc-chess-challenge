@@ -116,6 +116,7 @@ public class CachingSolver extends Solver {
 
             Board board = boardPool.get();
 
+            // TODO i can easily split inputs between N threads, where N is number of unique pieces
             getAllBoards( board, pieces);
         }
     }
