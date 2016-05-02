@@ -68,8 +68,13 @@ public class CachingSolver extends Solver {
             }
         }
 
+        inputs = new LinkedList<>(set.values());
+
+        // making sure there is an order in inputs list
+        Collections.sort(inputs, (a, b) -> Utils.getCacheKey(a, 0, this.P).compareTo(Utils.getCacheKey(b, 0, this.P)));
+
         LinkedList<Piece> prev = null;
-        for (LinkedList<Piece> pieces : set.values()) {
+        for (LinkedList<Piece> pieces : inputs) {
 
             /*
              * Here we reclaiming the cache entries that won't be used again simply by checking
