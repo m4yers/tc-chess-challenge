@@ -12,6 +12,7 @@ public class CachingSolver extends Solver {
     private Board.Pool boardPool;
     private ContextPool contextPool;
     private HashMap<String, LinkedList<Context>> cache;
+    private boolean doRotation;
 
     /*
      * @param M Columns
@@ -25,6 +26,7 @@ public class CachingSolver extends Solver {
 
         this.boardPool = new Board.Pool(poolSize, this.M, this.N, this.P);
         this.contextPool = new ContextPool(poolSize);
+        this.doRotation = M == N;
 
         /*
          * This cache stores half-solved boards, assuming all input comes sorted the first sequance
@@ -52,23 +54,25 @@ public class CachingSolver extends Solver {
         LinkedList<LinkedList<Piece>> inputs = new LinkedList<>();
         permuteInput(this.freq, this.P, new LinkedList<>(), inputs);
 
-        /*
-         * As with classic 8Q problem there are a number of 'core' solutions, others are just
-         * reflections and rotations. The very simple optimization here is just to drop all
-         * reflection inputs and add 180 rotated boards as result making sure that input sequance
-         * is not palindrome. Other rotations and reflections are bit more complicated to check
-         * for uniqueness. Plus 90 and 270 rotations won't work for non-square boards.
-         */
-        HashMap<String, LinkedList<Piece>> set = new HashMap<>();
-        for (LinkedList<Piece> pieces : inputs) {
-            String key = getCacheKey(pieces, 0, pieces.size());
-            String reversed = new StringBuilder(key).reverse().toString();
-            if (!set.containsKey(reversed)) {
-                set.put(key, pieces);
+        if (this.doRotation) {
+            /*
+             * As with classic 8Q problem there are a number of 'core' solutions, others are just
+             * reflections and rotations. The very simple optimization here is just to drop all
+             * reflection inputs and add 180 rotated boards as result making sure that input sequance
+             * is not palindrome. Other rotations and reflections are bit more complicated to check
+             * for uniqueness. Plus 90 and 270 rotations won't work for non-square boards.
+             */
+            HashMap<String, LinkedList<Piece>> set = new HashMap<>();
+            for (LinkedList<Piece> pieces : inputs) {
+                String key = getCacheKey(pieces, 0, pieces.size());
+                String reversed = new StringBuilder(key).reverse().toString();
+                if (!set.containsKey(reversed)) {
+                    set.put(key, pieces);
+                }
             }
-        }
 
-        inputs = new LinkedList<>(set.values());
+            inputs = new LinkedList<>(set.values());
+        }
 
         // making sure there is an order in inputs list
         Collections.sort(inputs, (a, b) -> Utils.getCacheKey(a, 0, this.P).compareTo(Utils.getCacheKey(b, 0, this.P)));
@@ -242,7 +246,7 @@ public class CachingSolver extends Solver {
                         /*
                          * If current sequance is not palindrome we can get board rotation
                          */
-                        if (!isPalyndrome(key)) {
+                        if (this.doRotation && !isPalyndrome(key)) {
                             Board rotation = boardPool.get(cloneBoard);
                             rotation.rotate180();
                             gotBoard(rotation);
