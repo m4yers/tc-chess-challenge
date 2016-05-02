@@ -30,7 +30,7 @@ public abstract class Solver {
     protected HashMap<Piece, Integer> freq;
 
     private Settings settings;
-    private int totalBoards;
+    protected int totalBoards;
 
     public Solver(int M, int N, HashMap<Piece, Integer> freq, Settings settings) {
         this.M = M;

@@ -27,13 +27,13 @@ public class TestCachingSolver {
     @Parameterized.Parameters
     public static Iterable<ChessTestData> cases() {
         LinkedList<ChessTestData> result = new LinkedList<>();
-        result.add(new ChessTestData("/solver-test-case-king.txt"));
-        result.add(new ChessTestData("/solver-test-case-queen.txt"));
-        result.add(new ChessTestData("/solver-test-case-bishop.txt"));
-        result.add(new ChessTestData("/solver-test-case-rook.txt"));
-        result.add(new ChessTestData("/solver-test-case-knight.txt"));
-        result.add(new ChessTestData("/solver-test-case-1.txt"));
-        result.add(new ChessTestData("/solver-test-case-2.txt"));
+        // result.add(new ChessTestData("/solver-test-case-king.txt"));
+        // result.add(new ChessTestData("/solver-test-case-queen.txt"));
+        // result.add(new ChessTestData("/solver-test-case-bishop.txt"));
+        // result.add(new ChessTestData("/solver-test-case-rook.txt"));
+        // result.add(new ChessTestData("/solver-test-case-knight.txt"));
+        // result.add(new ChessTestData("/solver-test-case-1.txt"));
+        // result.add(new ChessTestData("/solver-test-case-2.txt"));
         return result;
     }
 
@@ -54,7 +54,8 @@ public class TestCachingSolver {
 
         LinkedList<Board> result = new LinkedList<>();
         Solver.Settings settings = new Solver.Settings(false, false, null, result);
-        Solver solver = new CachingSolver(data.M, data.N, freq, settings, 1000);
+        Solver solver = new ThreadingSolver(data.M, data.N, freq, settings, 1000);
+        // Solver solver = new CachingSolver(data.M, data.N, freq, settings, 1000);
         // Solver solver = new BruteForceSolver(data.M, data.N, freq, settings);
         solver.solve();
 

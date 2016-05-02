@@ -26,6 +26,7 @@ public class CachingSolver extends Solver {
 
         this.boardPool = new Board.Pool(poolSize, this.M, this.N, this.P);
         this.contextPool = new ContextPool(poolSize);
+        //FIXME this is a bit dirty, need to figure out how to rotate board 180 properly
         this.doRotation = M == N;
 
         /*

@@ -18,7 +18,7 @@ public class App {
     private boolean help;
 
     @Option(name = "-s", aliases = {"--solver"}, metaVar = "NAME", usage = "Choose what solver to use, avaialbe: bruteforce and caching")
-    private String solver = "caching";
+    private String solver = "threading";
 
     @Option(name = "-p", aliases = {"--print"}, usage = "Print solved boards to screen")
     private boolean printToScreen;
@@ -86,12 +86,6 @@ public class App {
             return;
         }
 
-        if (this.solver != "bruteforce" && this.solver != "caching") {
-            System.err.println("Unknown solver");
-            parser.printUsage(System.err);
-            return;
-        }
-
         HashMap<Piece, Integer> freq = new HashMap<>();
         freq.put(Piece.getKing(),   this.kings);
         freq.put(Piece.getQueen(),  this.queens);
@@ -104,6 +98,10 @@ public class App {
         Solver solver = null;;
 
         switch (this.solver) {
+        case "threading": {
+            solver = new ThreadingSolver(this.M, this.N, freq, settings, this.poolSize);
+            break;
+        }
         case "caching": {
             solver = new CachingSolver(this.M, this.N, freq, settings, this.poolSize);
             break;
@@ -111,6 +109,11 @@ public class App {
         case "bruteforce": {
             solver = new BruteForceSolver(this.M, this.N, freq, settings);
             break;
+        }
+        default: {
+            System.err.println("Unknown solver");
+            parser.printUsage(System.err);
+            return;
         }
         }
 
