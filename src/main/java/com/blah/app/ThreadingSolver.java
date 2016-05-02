@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Callable;
@@ -15,6 +16,7 @@ import java.util.concurrent.Callable;
 public class ThreadingSolver extends Solver {
 
     private int poolSize;
+    private boolean useRotation;
 
     /*
      * @param M Columns
@@ -26,6 +28,11 @@ public class ThreadingSolver extends Solver {
     public ThreadingSolver(int M, int N, HashMap<Piece, Integer> freq, Settings settings, int poolSize) {
         super(M, N, freq, settings);
         this.poolSize = poolSize;
+        this.useRotation = M == N;
+    }
+
+    public ThreadingSolver(int M, int N, HashMap<Piece, Integer> freq, Settings settings) {
+        this(M, N, freq, settings, 1000);
     }
 
     public void solve() {
@@ -37,20 +44,31 @@ public class ThreadingSolver extends Solver {
         LinkedList<LinkedList<Piece>> inputs = new LinkedList<>();
         Utils.permuteInput(this.freq, this.P, new LinkedList<>(), inputs);
 
-        /*
-         * As with classic 8Q problem there are a number of 'core' solutions, others are just
-         * reflections and rotations. The very simple optimization here is just to drop all
-         * reflection inputs and add 180 rotated boards as result making sure that input sequance
-         * is not palindrome. Other rotations and reflections are bit more complicated to check
-         * for uniqueness. Plus 90 and 270 rotations won't work for non-square boards.
-         */
-        HashMap<String, LinkedList<Piece>> set = new HashMap<>();
-        for (LinkedList<Piece> pieces : inputs) {
-            String key = Utils.getCacheKey(pieces, 0, pieces.size());
-            String reversed = new StringBuilder(key).reverse().toString();
-            if (!set.containsKey(reversed)) {
-                set.put(key, pieces);
+        if (this.useRotation)  {
+
+            /*
+             * As with classic 8Q problem there are a number of 'core' solutions, others are just
+             * reflections and rotations. The very simple optimization here is just to drop all
+             * reflection inputs and add 180 rotated boards as result making sure that input sequance
+             * is not palindrome. Other rotations and reflections are bit more complicated to check
+             * for uniqueness. Plus 90 and 270 rotations won't work for non-square boards.
+             */
+            HashMap<String, LinkedList<Piece>> set = new HashMap<>();
+            for (LinkedList<Piece> pieces : inputs) {
+                String key = Utils.getCacheKey(pieces, 0, pieces.size());
+                String reversed = new StringBuilder(key).reverse().toString();
+                if (!set.containsKey(reversed)) {
+                    set.put(key, pieces);
+                }
             }
+
+            inputs = new LinkedList<>(set.values());
+        }
+
+        //TODO add daemon to print it if needed
+        ConcurrentLinkedQueue<Board> results = null;
+        if (this.settings.results != null)  {
+            results = new ConcurrentLinkedQueue<>();
         }
 
         List<Callable<Integer>> callables = new LinkedList<>();
@@ -65,8 +83,7 @@ public class ThreadingSolver extends Solver {
         lists.put(Piece.getRook(), new LinkedList<>());
         lists.put(Piece.getKnight(), new LinkedList<>());
 
-        System.out.println("values: " + set.values().size());
-        for (LinkedList<Piece> current : set.values()) {
+        for (LinkedList<Piece> current : inputs) {
             lists.get(current.get(0)).add(current);
         }
 
@@ -75,11 +92,13 @@ public class ThreadingSolver extends Solver {
                 continue;
             }
             Collections.sort(list, (a, b) -> Utils.getCacheKey(a, 0, a.size()).compareTo(Utils.getCacheKey(b, 0, b.size())));
-            callables.add(new Runner(this.M, this.N, this.P, this.poolSize, list));
+            callables.add(new Runner(this.M, this.N, this.P, this.poolSize, list, results, this.settings.debug));
         }
 
+        ExecutorService exe = Executors.newWorkStealingPool();
+
         try {
-            Executors.newWorkStealingPool().invokeAll(callables)
+            exe.invokeAll(callables)
             .stream()
             .map(future -> {
                 try {
@@ -93,6 +112,11 @@ public class ThreadingSolver extends Solver {
             System.err.println(e);
             System.err.println("WUBALUBADUBDUB");
         }
+
+        exe.shutdown();
+        if (settings.results != null) {
+            settings.results.addAll(results);
+        }
     }
 
     private class Runner implements Callable<Integer> {
@@ -101,14 +125,20 @@ public class ThreadingSolver extends Solver {
         private ContextPool contextPool;
         private HashMap<String, LinkedList<Context>> cache;
         private Iterable<LinkedList<Piece>> pieces;
+        private ConcurrentLinkedQueue<Board> results;
+        private boolean useRotation;
+        private boolean debug;
         private int counter;
 
-        public Runner(int M, int N, int P, int poolSize, Iterable<LinkedList<Piece>> pieces) {
+        public Runner(int M, int N, int P, int poolSize, Iterable<LinkedList<Piece>> pieces, ConcurrentLinkedQueue<Board> results, boolean debug) {
 
             this.pieces = pieces;
+            this.results = results;
+            this.debug = debug;
             this.boardPool = new Board.Pool(poolSize, M, N, P);
             this.contextPool = new ContextPool(poolSize);
             this.cache = new HashMap<>();
+            this.useRotation = M == N;
         }
 
         @Override
@@ -283,7 +313,7 @@ public class ThreadingSolver extends Solver {
                             /*
                              * If current sequance is not palindrome we can get board rotation
                              */
-                            if (!Utils.isPalyndrome(key)) {
+                            if (this.useRotation && !Utils.isPalyndrome(key)) {
                                 Board rotation = boardPool.get(cloneBoard);
                                 rotation.rotate180();
                                 gotBoard(rotation);
@@ -393,14 +423,20 @@ public class ThreadingSolver extends Solver {
         }
 
         private void debug(String message) {
-            System.out.println(Thread.currentThread().getName() + ": " + message);
+            if (this.debug) {
+                System.out.println(Thread.currentThread().getName() + ": " + message);
+            }
         }
 
         private void gotBoard(Board board) {
             this.counter++;
-            if (this.counter % 1000000 == 0) {
-                debug("--------------------------------------------------------" + this.counter);
+            if (this.results != null) {
+                this.results.add(new Board(board));
             }
+            // System.out.println(board);
+            // if (this.counter % 1000000 == 0) {
+            //     debug("--------------------------------------------------------" + this.counter);
+            // }
         }
     }
 

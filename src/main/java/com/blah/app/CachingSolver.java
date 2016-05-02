@@ -46,6 +46,10 @@ public class CachingSolver extends Solver {
         this.cache = new HashMap<>();
     }
 
+    public CachingSolver(int M, int N, HashMap<Piece, Integer> freq, Settings settings) {
+        this(M, N, freq, settings, 1000);
+    }
+
     public void solve() {
 
         /*

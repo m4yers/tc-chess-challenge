@@ -29,7 +29,7 @@ public abstract class Solver {
     protected int P;
     protected HashMap<Piece, Integer> freq;
 
-    private Settings settings;
+    protected Settings settings;
     protected int totalBoards;
 
     public Solver(int M, int N, HashMap<Piece, Integer> freq, Settings settings) {
