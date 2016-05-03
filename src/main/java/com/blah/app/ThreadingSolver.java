@@ -29,7 +29,6 @@ public class ThreadingSolver extends Solver {
         super(M, N, freq, settings);
         this.poolSize = poolSize;
         this.useRotation = M == N;
-        this.useRotation = false;
     }
 
     public ThreadingSolver(int M, int N, HashMap<Piece, Integer> freq, Settings settings) {
@@ -54,6 +53,7 @@ public class ThreadingSolver extends Solver {
              * is not palindrome. Other rotations and reflections are bit more complicated to check
              * for uniqueness. Plus 90 and 270 rotations won't work for non-square boards.
              */
+            System.out.println("Before: " + inputs.size());
             HashMap<String, LinkedList<Piece>> set = new HashMap<>();
             for (LinkedList<Piece> pieces : inputs) {
                 String key = Utils.getCacheKey(pieces, 0, pieces.size());
@@ -64,6 +64,10 @@ public class ThreadingSolver extends Solver {
             }
 
             inputs = new LinkedList<>(set.values());
+
+            System.out.println("After: " + inputs.size());
+
+            return;
         }
 
         //TODO add daemon to print it if needed
@@ -140,7 +144,6 @@ public class ThreadingSolver extends Solver {
             this.contextPool = new ContextPool(poolSize);
             this.cache = new HashMap<>();
             this.useRotation = M == N;
-            this.useRotation = false;
         }
 
         @Override

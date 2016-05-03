@@ -29,33 +29,33 @@ public class TestSolvers {
     @Parameterized.Parameters
     public static Iterable<ChessTestData> cases() {
         LinkedList<ChessTestData> result = new LinkedList<>();
-        result.add(new ChessTestData(BruteForceSolver.class, "/solver-test-case-king.txt"));
-        result.add(new ChessTestData(BruteForceSolver.class, "/solver-test-case-queen.txt"));
-        result.add(new ChessTestData(BruteForceSolver.class, "/solver-test-case-bishop.txt"));
-        result.add(new ChessTestData(BruteForceSolver.class, "/solver-test-case-rook.txt"));
-        result.add(new ChessTestData(BruteForceSolver.class, "/solver-test-case-knight.txt"));
-        result.add(new ChessTestData(BruteForceSolver.class, "/solver-test-case-1.txt"));
-        result.add(new ChessTestData(BruteForceSolver.class, "/solver-test-case-2.txt"));
-        result.add(new ChessTestData(BruteForceSolver.class, "/solver-test-case-8-queens.txt"));
-
-        result.add(new ChessTestData(CachingSolver.class, "/solver-test-case-king.txt"));
-        result.add(new ChessTestData(CachingSolver.class, "/solver-test-case-queen.txt"));
-        result.add(new ChessTestData(CachingSolver.class, "/solver-test-case-bishop.txt"));
-        result.add(new ChessTestData(CachingSolver.class, "/solver-test-case-rook.txt"));
-        result.add(new ChessTestData(CachingSolver.class, "/solver-test-case-knight.txt"));
-        result.add(new ChessTestData(CachingSolver.class, "/solver-test-case-1.txt"));
-        result.add(new ChessTestData(CachingSolver.class, "/solver-test-case-2.txt"));
-        result.add(new ChessTestData(CachingSolver.class, "/solver-test-case-8-queens.txt"));
-
-
-        result.add(new ChessTestData(ThreadingSolver.class, "/solver-test-case-king.txt"));
-        result.add(new ChessTestData(ThreadingSolver.class, "/solver-test-case-queen.txt"));
-        result.add(new ChessTestData(ThreadingSolver.class, "/solver-test-case-bishop.txt"));
-        result.add(new ChessTestData(ThreadingSolver.class, "/solver-test-case-rook.txt"));
-        result.add(new ChessTestData(ThreadingSolver.class, "/solver-test-case-knight.txt"));
-        result.add(new ChessTestData(ThreadingSolver.class, "/solver-test-case-1.txt"));
-        result.add(new ChessTestData(ThreadingSolver.class, "/solver-test-case-2.txt"));
-        result.add(new ChessTestData(ThreadingSolver.class, "/solver-test-case-8-queens.txt"));
+        // result.add(new ChessTestData(BruteForceSolver.class, "/solver-test-case-king.txt"));
+        // result.add(new ChessTestData(BruteForceSolver.class, "/solver-test-case-queen.txt"));
+        // result.add(new ChessTestData(BruteForceSolver.class, "/solver-test-case-bishop.txt"));
+        // result.add(new ChessTestData(BruteForceSolver.class, "/solver-test-case-rook.txt"));
+        // result.add(new ChessTestData(BruteForceSolver.class, "/solver-test-case-knight.txt"));
+        // result.add(new ChessTestData(BruteForceSolver.class, "/solver-test-case-1.txt"));
+        // result.add(new ChessTestData(BruteForceSolver.class, "/solver-test-case-2.txt"));
+        // result.add(new ChessTestData(BruteForceSolver.class, "/solver-test-case-8-queens.txt"));
+        //
+        // result.add(new ChessTestData(CachingSolver.class, "/solver-test-case-king.txt"));
+        // result.add(new ChessTestData(CachingSolver.class, "/solver-test-case-queen.txt"));
+        // result.add(new ChessTestData(CachingSolver.class, "/solver-test-case-bishop.txt"));
+        // result.add(new ChessTestData(CachingSolver.class, "/solver-test-case-rook.txt"));
+        // result.add(new ChessTestData(CachingSolver.class, "/solver-test-case-knight.txt"));
+        // result.add(new ChessTestData(CachingSolver.class, "/solver-test-case-1.txt"));
+        // result.add(new ChessTestData(CachingSolver.class, "/solver-test-case-2.txt"));
+        // result.add(new ChessTestData(CachingSolver.class, "/solver-test-case-8-queens.txt"));
+        //
+        //
+        // result.add(new ChessTestData(ThreadingSolver.class, "/solver-test-case-king.txt"));
+        // result.add(new ChessTestData(ThreadingSolver.class, "/solver-test-case-queen.txt"));
+        // result.add(new ChessTestData(ThreadingSolver.class, "/solver-test-case-bishop.txt"));
+        // result.add(new ChessTestData(ThreadingSolver.class, "/solver-test-case-rook.txt"));
+        // result.add(new ChessTestData(ThreadingSolver.class, "/solver-test-case-knight.txt"));
+        // result.add(new ChessTestData(ThreadingSolver.class, "/solver-test-case-1.txt"));
+        // result.add(new ChessTestData(ThreadingSolver.class, "/solver-test-case-2.txt"));
+        // result.add(new ChessTestData(ThreadingSolver.class, "/solver-test-case-8-queens.txt"));
 
         return result;
     }
