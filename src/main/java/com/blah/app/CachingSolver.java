@@ -70,8 +70,8 @@ public class CachingSolver extends Solver {
              */
             HashMap<String, LinkedList<Piece>> set = new HashMap<>();
             for (LinkedList<Piece> pieces : inputs) {
-                String key = getCacheKey(pieces, 0, pieces.size());
-                String reversed = new StringBuilder(key).reverse().toString();
+                String key = Utils.getCacheKey(pieces, 0, pieces.size());
+                String reversed = Utils.reverseString(key);
                 if (!set.containsKey(reversed)) {
                     set.put(key, pieces);
                 }
@@ -104,7 +104,7 @@ public class CachingSolver extends Solver {
 
                     // why +1 because getCacheKey second argument is 'till'
                     for (int j = i + 1; j < prev.size(); j++) {
-                        String k = getCacheKey(prev, 0, j);
+                        String k = Utils.getCacheKey(prev, 0, j);
                         if (cache.containsKey(k)) {
                             int count = 0;
                             for (Context context : cache.remove(k)) {
@@ -144,7 +144,7 @@ public class CachingSolver extends Solver {
      */
     public void getAllBoards( Board board, LinkedList<Piece> inputList) {
 
-        boolean rotateThisInput = this.doRotation && !Utils.isPalyndrome(getCacheKey(inputList, 0, inputList.size()));
+        boolean rotateThisInput = this.doRotation;//  && !Utils.isPalyndrome(getCacheKey(inputList, 0, inputList.size()));
 
         /*
          * This is sequance of all board positions starting from left to right, top to bottom.
@@ -158,7 +158,7 @@ public class CachingSolver extends Solver {
          */
         LinkedList<Context> queue = new LinkedList<>();
 
-        String key = getCacheKey(inputList, 0, inputList.size());
+        String key = Utils.getCacheKey(inputList, 0, inputList.size());
 
         /*
          * Cache record we gonna to fill for the current sub-key
@@ -213,7 +213,7 @@ public class CachingSolver extends Solver {
                     cache.put(key, record);
                 }
 
-                key = getCacheKey(inputList, 0, inputIndex);
+                key = Utils.getCacheKey(inputList, 0, inputIndex);
                 /*
                  * If there is a cache record with this key we do not fill-in new cache record
                  * FIXME bug?
@@ -245,7 +245,7 @@ public class CachingSolver extends Solver {
                  * Trying to place a piece in the board, if we are successful the cloned board
                  * goes to the next generation, otherwise we place it back into the pool
                  */
-                if (tryToPlace(cloneBoard, piece, loc)) {
+                if (Utils.tryToPlace(cloneBoard, piece, loc)) {
 
                     /*
                      * We have placed all the pieces
@@ -279,100 +279,6 @@ public class CachingSolver extends Solver {
                 }
             }
         }
-    }
-
-    /*
-     * The method tries to place the piece on the board for a given location. It simply iterates
-     * over piece's type moves and applies board transformation accordingly
-     */
-    public boolean tryToPlace(Board board, Piece piece, Board.Location loc) {
-        int m = loc.m();
-        int n = loc.n();
-
-        if (piece == Piece.getQueen()) {
-            if (
-                !board.isBlocked(loc) &&
-                !board.isAnyPieceOnRow(n) &&
-                !board.isAnyPieceOnColumn(m) &&
-                !board.isAnyPieceOnDiagonals(m, n)) {
-
-                board.addPiece(piece, m, n);
-                board.addPerpendicularBlock(m, n);
-                return true;
-            }
-        } else if (piece == Piece.getKing()) {
-            if (!board.isBlocked(loc)
-                    && !board.isAnyPieceAt(m, n)
-                    && !board.isAnyPieceAt(m, n - 1)
-                    && !board.isAnyPieceAt(m, n + 1)
-                    && !board.isAnyPieceAt(m - 1, n)
-                    && !board.isAnyPieceAt(m + 1, n)
-                    && !board.isAnyPieceAt(m - 1, n - 1)
-                    && !board.isAnyPieceAt(m + 1, n - 1)
-                    && !board.isAnyPieceAt(m - 1, n + 1)
-                    && !board.isAnyPieceAt(m + 1, n + 1)) {
-                board.addPiece(piece, m, n);
-                board.addPerpendicularBlock(m, n, 1);
-                board.addDiagonalBlock(m, n, 1);
-                return true;
-            }
-        } else if (piece == Piece.getBishop()) {
-            if (!board.isBlocked(loc) &&
-                    !board.isAnyPieceOnDiagonals(m, n)) {
-
-                board.addPiece(piece, m, n);
-                board.addDiagonalBlock(m, n);
-                return true;
-            }
-        } else if (piece == Piece.getRook()) {
-            if (
-                !board.isBlocked(loc) &&
-                !board.isAnyPieceOnRow(n) &&
-                !board.isAnyPieceOnColumn(m)) {
-
-                board.addPiece(piece, m, n);
-                board.addPerpendicularBlock(m, n);
-                return true;
-            }
-        } else if (piece == Piece.getKnight()) {
-            if (!board.isBlocked(loc)
-                    && !board.isAnyPieceAt(m - 2, n - 1)
-                    && !board.isAnyPieceAt(m - 1, n - 2)
-                    && !board.isAnyPieceAt(m + 2, n - 1)
-                    && !board.isAnyPieceAt(m + 1, n - 2)
-                    && !board.isAnyPieceAt(m - 2, n + 1)
-                    && !board.isAnyPieceAt(m - 1, n + 2)
-                    && !board.isAnyPieceAt(m + 2, n + 1)
-                    && !board.isAnyPieceAt(m + 1, n + 2)
-                    && !board.isAnyPieceAt(m, n)) {
-                board.addPiece(piece, m, n);
-                board.addBlock(m - 2, n - 1);
-                board.addBlock(m - 1, n - 2);
-                board.addBlock(m + 2, n - 1);
-                board.addBlock(m + 1, n - 2);
-                board.addBlock(m - 2, n + 1);
-                board.addBlock(m - 1, n + 2);
-                board.addBlock(m + 2, n + 1);
-                board.addBlock(m + 1, n + 2);
-                return true;
-            }
-        } else {
-            return false;
-        }
-        return false;
-    }
-
-    /*
-     * Get string representation of piece sequance
-     */
-    private String getCacheKey(List<Piece> pieces, int start, int end) {
-        String key = "";
-
-        for (int i = start; i < end; i++) {
-            key += pieces.get(i).getSymbol();
-        }
-
-        return key;
     }
 
     /*

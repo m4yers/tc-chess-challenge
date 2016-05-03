@@ -18,7 +18,7 @@ public class App {
     private boolean help;
 
     @Option(name = "-s", aliases = {"--solver"}, metaVar = "NAME", usage = "Choose what solver to use, avaialbe: bruteforce, caching and threading")
-    private String solver = "caching";
+    private String solver = "threading";
 
     @Option(name = "-p", aliases = {"--print"}, usage = "Print solved boards to screen")
     private boolean printToScreen;
@@ -97,6 +97,7 @@ public class App {
 
         Solver solver = null;;
 
+        // TODO CHECK WHY SOLVER OPTION PASSED DIFFERENT FROM DEFAULT VALUE
         switch (this.solver) {
         case "threading": {
             solver = new ThreadingSolver(this.M, this.N, freq, settings, this.poolSize);

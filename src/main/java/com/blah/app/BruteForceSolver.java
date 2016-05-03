@@ -60,88 +60,11 @@ public class BruteForceSolver extends Solver {
             // actually it is ok, since requesting new list is O(MxN) and scipping used is ~O(M)
             Board.Location loc = freeList.remove(0);
             Board clone = new Board(board);
-            if (tryToPlace(clone, piece, loc)) {
+            if (Utils.tryToPlace(clone, piece, loc)) {
                 // TODO use queue here to break recursion like BFS
                 // TODO to escape inputList and freeList cloning, use indices
                 getAllBoards(clone, new LinkedList<>(inputList), new ArrayList<>(freeList));
             }
         }
-    }
-
-    public boolean tryToPlace(Board board, Piece piece, Board.Location loc) {
-        int m = loc.m();
-        int n = loc.n();
-
-        if (piece == Piece.getQueen()) {
-            if (
-                !board.isBlocked(loc) &&
-                !board.isAnyPieceOnRow(n) &&
-                !board.isAnyPieceOnColumn(m) &&
-                !board.isAnyPieceOnDiagonals(m, n)) {
-
-                board.addPiece(piece, m, n);
-                board.addPerpendicularBlock(m, n);
-                return true;
-            }
-        } else if (piece == Piece.getKing()) {
-            if (!board.isBlocked(loc)
-                    && !board.isAnyPieceAt(m, n)
-                    && !board.isAnyPieceAt(m, n - 1)
-                    && !board.isAnyPieceAt(m, n + 1)
-                    && !board.isAnyPieceAt(m - 1, n)
-                    && !board.isAnyPieceAt(m + 1, n)
-                    && !board.isAnyPieceAt(m - 1, n - 1)
-                    && !board.isAnyPieceAt(m + 1, n - 1)
-                    && !board.isAnyPieceAt(m - 1, n + 1)
-                    && !board.isAnyPieceAt(m + 1, n + 1)) {
-                board.addPiece(piece, m, n);
-                board.addPerpendicularBlock(m, n, 1);
-                board.addDiagonalBlock(m, n, 1);
-                return true;
-            }
-        } else if (piece == Piece.getBishop()) {
-            if (!board.isBlocked(loc) &&
-                    !board.isAnyPieceOnDiagonals(m, n)) {
-
-                board.addPiece(piece, m, n);
-                board.addDiagonalBlock(m, n);
-                return true;
-            }
-        } else if (piece == Piece.getRook()) {
-            if (
-                !board.isBlocked(loc) &&
-                !board.isAnyPieceOnRow(n) &&
-                !board.isAnyPieceOnColumn(m)) {
-
-                board.addPiece(piece, m, n);
-                board.addPerpendicularBlock(m, n);
-                return true;
-            }
-        } else if (piece == Piece.getKnight()) {
-            if (!board.isBlocked(loc)
-                    && !board.isAnyPieceAt(m - 2, n - 1)
-                    && !board.isAnyPieceAt(m - 1, n - 2)
-                    && !board.isAnyPieceAt(m + 2, n - 1)
-                    && !board.isAnyPieceAt(m + 1, n - 2)
-                    && !board.isAnyPieceAt(m - 2, n + 1)
-                    && !board.isAnyPieceAt(m - 1, n + 2)
-                    && !board.isAnyPieceAt(m + 2, n + 1)
-                    && !board.isAnyPieceAt(m + 1, n + 2)
-                    && !board.isAnyPieceAt(m, n)) {
-                board.addPiece(piece, m, n);
-                board.addBlock(m - 2, n - 1);
-                board.addBlock(m - 1, n - 2);
-                board.addBlock(m + 2, n - 1);
-                board.addBlock(m + 1, n - 2);
-                board.addBlock(m - 2, n + 1);
-                board.addBlock(m - 1, n + 2);
-                board.addBlock(m + 2, n + 1);
-                board.addBlock(m + 1, n + 2);
-                return true;
-            }
-        } else {
-            return false;
-        }
-        return false;
     }
 }

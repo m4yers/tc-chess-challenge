@@ -55,11 +55,11 @@ public abstract class Solver {
 
     protected void gotBoard(Board board) {
 
-        // if (this.hash.contains(board.toString())) {
-        //     return;
-        // }
-        //
-        // this.hash.add(board.toString());
+        if (this.hash.contains(board.toString())) {
+            return;
+        }
+
+        this.hash.add(board.toString());
 
         this.totalBoards++;
 

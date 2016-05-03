@@ -19,6 +19,16 @@ public class Utils {
         return key;
     }
 
+    public static String getCacheKey(List<Piece> pieces) {
+        String key = "";
+
+        for (Piece piece : pieces) {
+            key += piece.getSymbol();
+        }
+
+        return key;
+    }
+
     /*
      * Get all input permutations
      */
@@ -44,8 +54,88 @@ public class Utils {
         }
     }
 
+    public static String reverseString(String str) {
+        return new StringBuilder(str).reverse().toString();
+    }
 
-        public static boolean isPalyndrome (String string) {
-            return string.compareTo(new StringBuilder(string).reverse().toString()) == 0;
+    public static boolean isPalyndrome (String str) {
+        return str.compareTo(reverseString(str)) == 0;
+    }
+
+    public static boolean tryToPlace(Board board, Piece piece, Board.Location loc) {
+        int m = loc.m();
+        int n = loc.n();
+
+        if (piece == Piece.getQueen()) {
+            if (
+                !board.isBlocked(loc) &&
+                !board.isAnyPieceOnRow(n) &&
+                !board.isAnyPieceOnColumn(m) &&
+                !board.isAnyPieceOnDiagonals(m, n)) {
+
+                board.addPiece(piece, m, n);
+                board.addPerpendicularBlock(m, n);
+                return true;
+            }
+        } else if (piece == Piece.getKing()) {
+            if (!board.isBlocked(loc)
+                    && !board.isAnyPieceAt(m, n)
+                    && !board.isAnyPieceAt(m, n - 1)
+                    && !board.isAnyPieceAt(m, n + 1)
+                    && !board.isAnyPieceAt(m - 1, n)
+                    && !board.isAnyPieceAt(m + 1, n)
+                    && !board.isAnyPieceAt(m - 1, n - 1)
+                    && !board.isAnyPieceAt(m + 1, n - 1)
+                    && !board.isAnyPieceAt(m - 1, n + 1)
+                    && !board.isAnyPieceAt(m + 1, n + 1)) {
+                board.addPiece(piece, m, n);
+                board.addPerpendicularBlock(m, n, 1);
+                board.addDiagonalBlock(m, n, 1);
+                return true;
+            }
+        } else if (piece == Piece.getBishop()) {
+            if (!board.isBlocked(loc) &&
+                    !board.isAnyPieceOnDiagonals(m, n)) {
+
+                board.addPiece(piece, m, n);
+                board.addDiagonalBlock(m, n);
+                return true;
+            }
+        } else if (piece == Piece.getRook()) {
+            if (
+                !board.isBlocked(loc) &&
+                !board.isAnyPieceOnRow(n) &&
+                !board.isAnyPieceOnColumn(m)) {
+
+                board.addPiece(piece, m, n);
+                board.addPerpendicularBlock(m, n);
+                return true;
+            }
+        } else if (piece == Piece.getKnight()) {
+            if (!board.isBlocked(loc)
+                    && !board.isAnyPieceAt(m - 2, n - 1)
+                    && !board.isAnyPieceAt(m - 1, n - 2)
+                    && !board.isAnyPieceAt(m + 2, n - 1)
+                    && !board.isAnyPieceAt(m + 1, n - 2)
+                    && !board.isAnyPieceAt(m - 2, n + 1)
+                    && !board.isAnyPieceAt(m - 1, n + 2)
+                    && !board.isAnyPieceAt(m + 2, n + 1)
+                    && !board.isAnyPieceAt(m + 1, n + 2)
+                    && !board.isAnyPieceAt(m, n)) {
+                board.addPiece(piece, m, n);
+                board.addBlock(m - 2, n - 1);
+                board.addBlock(m - 1, n - 2);
+                board.addBlock(m + 2, n - 1);
+                board.addBlock(m + 1, n - 2);
+                board.addBlock(m - 2, n + 1);
+                board.addBlock(m - 1, n + 2);
+                board.addBlock(m + 2, n + 1);
+                board.addBlock(m + 1, n + 2);
+                return true;
+            }
+        } else {
+            return false;
         }
+        return false;
+    }
 }
