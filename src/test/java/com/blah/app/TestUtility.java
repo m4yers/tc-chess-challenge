@@ -10,6 +10,7 @@ import java.util.Arrays;
 import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
 
 //TODO extend with edge test cases
 public class TestUtility {
@@ -52,5 +53,16 @@ public class TestUtility {
         for (int i = 0; i < check.length; i++) {
             assertEquals(check[i], Utils.getCacheKey(result.get(i)));
         }
+    }
+
+    @Test
+    public void testReverseString() {
+        assertEquals("WUBALUBADUBDUB", Utils.reverseString("BUDBUDABULABUW"));
+    }
+
+    @Test
+    public void testIsPayndrome() {
+        assertTrue(Utils.isPalyndrome("AABBAA"));
+        assertFalse(Utils.isPalyndrome("AABBA"));
     }
 }
