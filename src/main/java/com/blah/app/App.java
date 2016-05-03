@@ -17,8 +17,8 @@ public class App {
     @Option(name = "-h", aliases = {"-help"}, usage = "Print help information")
     private boolean help;
 
-    @Option(name = "-s", aliases = {"--solver"}, metaVar = "NAME", usage = "Choose what solver to use, avaialbe: bruteforce and caching")
-    private String solver = "threading";
+    @Option(name = "-s", aliases = {"--solver"}, metaVar = "NAME", usage = "Choose what solver to use, avaialbe: bruteforce, caching and threading")
+    private String solver = "caching";
 
     @Option(name = "-p", aliases = {"--print"}, usage = "Print solved boards to screen")
     private boolean printToScreen;

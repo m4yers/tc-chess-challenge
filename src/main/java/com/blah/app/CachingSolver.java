@@ -28,6 +28,7 @@ public class CachingSolver extends Solver {
         this.contextPool = new ContextPool(poolSize);
         //FIXME this is a bit dirty, need to figure out how to rotate board 180 properly
         this.doRotation = M == N;
+        this.doRotation = false;
 
         /*
          * This cache stores half-solved boards, assuming all input comes sorted the first sequance
@@ -143,6 +144,8 @@ public class CachingSolver extends Solver {
      */
     public void getAllBoards( Board board, LinkedList<Piece> inputList) {
 
+        boolean rotateThisInput = this.doRotation && !Utils.isPalyndrome(getCacheKey(inputList, 0, inputList.size()));
+
         /*
          * This is sequance of all board positions starting from left to right, top to bottom.
          * When we place a piece on the board we advance freeList index to the next available
@@ -251,7 +254,7 @@ public class CachingSolver extends Solver {
                         /*
                          * If current sequance is not palindrome we can get board rotation
                          */
-                        if (this.doRotation && !isPalyndrome(key)) {
+                        if (rotateThisInput) {
                             Board rotation = boardPool.get(cloneBoard);
                             rotation.rotate180();
                             gotBoard(rotation);
@@ -357,10 +360,6 @@ public class CachingSolver extends Solver {
             return false;
         }
         return false;
-    }
-
-    private boolean isPalyndrome (String string) {
-        return string.compareTo(new StringBuilder(string).reverse().toString()) == 0;
     }
 
     /*

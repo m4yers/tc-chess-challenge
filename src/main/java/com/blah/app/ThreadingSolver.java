@@ -29,6 +29,7 @@ public class ThreadingSolver extends Solver {
         super(M, N, freq, settings);
         this.poolSize = poolSize;
         this.useRotation = M == N;
+        this.useRotation = false;
     }
 
     public ThreadingSolver(int M, int N, HashMap<Piece, Integer> freq, Settings settings) {
@@ -139,6 +140,7 @@ public class ThreadingSolver extends Solver {
             this.contextPool = new ContextPool(poolSize);
             this.cache = new HashMap<>();
             this.useRotation = M == N;
+            this.useRotation = false;
         }
 
         @Override
