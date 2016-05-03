@@ -2,6 +2,7 @@ package com.blah.app;
 
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.List;
 
 import java.util.Collections;
 import java.util.Arrays;
@@ -10,7 +11,19 @@ import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+//TODO extend with edge test cases
 public class TestUtility {
+
+    @Test
+    public void testGetCacheKey() {
+        List<Piece> list = new LinkedList<>();
+        list.add(Piece.getKing());
+        list.add(Piece.getKing());
+        list.add(Piece.getQueen());
+        list.add(Piece.getBishop());
+
+        assertEquals("KKQB", Utils.getCacheKey(list));
+    }
 
     @Test
     public void testPermuteInput() {
