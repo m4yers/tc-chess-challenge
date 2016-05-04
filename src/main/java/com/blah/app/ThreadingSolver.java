@@ -57,7 +57,7 @@ public class ThreadingSolver extends Solver {
         // this.useRotation = false;
         if (this.useRotation)  {
 
-            System.out.println("Before: " + inputs.size());
+            debug("Before: " + inputs.size());
 
             HashMap<String, LinkedList<Piece>> set = new HashMap<>();
 
@@ -71,7 +71,7 @@ public class ThreadingSolver extends Solver {
 
             inputs = new LinkedList<>(set.values());
 
-            System.out.println("After: " + inputs.size());
+            debug("After: " + inputs.size());
 
             // return;
         }
