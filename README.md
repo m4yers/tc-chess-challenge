@@ -22,9 +22,8 @@ Usage
 -knights NUMBER           : Number of knights
 -bishops NUMBER           : Number of bishops
 -rooks NUMBER             : Number of rooks
--s (--solver) NAME        : Choose what solver to use, avaialbe: bruteforce, caching and threading (default: threading)
+-s (--solver) NAME        : Choose what solver to use, avaialbe: bruteforce, caching, threading or all (default: threading)
 -d (--debug)              : Print debug information (default: true)
--f (--print-to-file) FILE : Print solved boards to FILE (default: false)
 -p (--print)              : Print solved boards to screen (default: true)
 -ps (--pool-size) SIZE    : Pool size for caching solver (default: 500)
 -h (-help)                : Print help information (default: true)
