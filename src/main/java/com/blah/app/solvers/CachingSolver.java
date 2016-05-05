@@ -24,11 +24,11 @@ public class CachingSolver extends Solver {
      * @param settings Solver settings
      * @param poolSize Size of board pool
      */
-    public CachingSolver(int M, int N, HashMap<Piece, Integer> freq, Settings settings, int poolSize) {
+    public CachingSolver(int M, int N, HashMap<Piece, Integer> freq, Settings settings) {
         super(M, N, freq, settings);
 
-        this.boardPool = new Board.Pool(poolSize, this.M, this.N, this.P);
-        this.contextPool = new Context.Pool(poolSize);
+        this.boardPool = new Board.Pool(settings.poolSize, this.M, this.N, this.P);
+        this.contextPool = new Context.Pool(settings.poolSize);
         this.doRotation = M == N;
 
         /*
@@ -48,18 +48,13 @@ public class CachingSolver extends Solver {
         this.cache = new HashMap<>();
     }
 
-    public CachingSolver(int M, int N, HashMap<Piece, Integer> freq, Settings settings) {
-        this(M, N, freq, settings, 1000);
-    }
-
     public void solve() {
 
         /*
          * Here we precompute all possible inputs into the solver, it is simple permutation
          * computation allows us break from recursion in the main cycle.
          */
-        LinkedList<LinkedList<Piece>> inputs = new LinkedList<>();
-        Utils.permuteInput(this.freq, this.P, new LinkedList<>(), inputs);
+        LinkedList<LinkedList<Piece>> inputs = Utils.permuteInput(this.freq, this.P);
 
         if (this.doRotation) {
             /*
@@ -82,7 +77,7 @@ public class CachingSolver extends Solver {
         }
 
         // making sure there is an order in inputs list
-        Collections.sort(inputs, (a, b) -> Utils.getCacheKey(a, 0, this.P).compareTo(Utils.getCacheKey(b, 0, this.P)));
+        Collections.sort(inputs, (a, b) -> Utils.getCacheKey(a).compareTo(Utils.getCacheKey(b)));
 
         LinkedList<Piece> prev = null;
         for (LinkedList<Piece> pieces : inputs) {
@@ -130,10 +125,7 @@ public class CachingSolver extends Solver {
              */
             prev = pieces;
 
-            Board board = boardPool.get();
-
-            // TODO i can easily split inputs between N threads, where N is number of unique pieces
-            getAllBoards( board, pieces);
+            getAllBoards(boardPool.get(), pieces);
         }
     }
 
@@ -159,7 +151,7 @@ public class CachingSolver extends Solver {
          */
         LinkedList<Context> queue = new LinkedList<>();
 
-        String key = Utils.getCacheKey(inputList, 0, inputList.size());
+        String key = Utils.getCacheKey(inputList);
 
         /*
          * Cache record we gonna to fill for the current sub-key

@@ -56,6 +56,14 @@ public class Utils {
         }
     }
 
+    public static LinkedList<LinkedList<Piece>> permuteInput(
+        HashMap<Piece, Integer> freq,
+        int rest) {
+        LinkedList<LinkedList<Piece>> result = new LinkedList<>();
+        permuteInput(freq, rest, new LinkedList<>(), result);
+        return result;
+    }
+
     public static String reverseString(String str) {
         return new StringBuilder(str).reverse().toString();
     }
