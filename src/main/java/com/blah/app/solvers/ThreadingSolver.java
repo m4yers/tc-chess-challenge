@@ -16,10 +16,8 @@ import java.util.concurrent.Callable;
 import com.blah.app.primitives.*;
 import com.blah.app.utils.*;
 
-// TODO add threaded bruteforce, it seems bf works better than caching on hi-end machines
 public class ThreadingSolver extends Solver {
 
-    private int poolSize;
     private boolean useRotation;
 
     /*
@@ -27,16 +25,9 @@ public class ThreadingSolver extends Solver {
      * @param N Rows
      * @param freq HashMap of pieces and theirs numbers
      * @param settings Solver settings
-     * @param poolSize Size of board pool
      */
-    public ThreadingSolver(int M, int N, HashMap<Piece, Integer> freq, Settings settings, int poolSize) {
-        super(M, N, freq, settings);
-        this.poolSize = poolSize;
-        this.useRotation = M == N;
-    }
-
     public ThreadingSolver(int M, int N, HashMap<Piece, Integer> freq, Settings settings) {
-        this(M, N, freq, settings, 1000);
+        super(M, N, freq, settings);
     }
 
     public void solve() {
@@ -56,10 +47,7 @@ public class ThreadingSolver extends Solver {
          * is not palindrome. Other rotations and reflections are bit more complicated to check
          * for uniqueness. Plus 90 and 270 rotations won't work for non-square boards.
          */
-        // this.useRotation = false;
         if (this.useRotation)  {
-
-            debug("Before: " + inputs.size());
 
             HashMap<String, LinkedList<Piece>> set = new HashMap<>();
 
@@ -72,10 +60,6 @@ public class ThreadingSolver extends Solver {
             }
 
             inputs = new LinkedList<>(set.values());
-
-            debug("After: " + inputs.size());
-
-            // return;
         }
 
         //TODO add daemon to print it if needed
@@ -105,15 +89,14 @@ public class ThreadingSolver extends Solver {
                 continue;
             }
             // making sure there is an order in input
-            Collections.sort(list, (a, b) -> Utils.getCacheKey(a, 0, a.size()).compareTo(Utils.getCacheKey(b, 0, b.size())));
-            callables.add(new Runner(this.M, this.N, this.P, this.poolSize, list, this.useRotation, results, this.settings.debug));
+            Collections.sort(list, (a, b) -> Utils.getCacheKey(a).compareTo(Utils.getCacheKey(b)));
+            callables.add(new Runner(list.get(0).get(0).getSymbol(), list, results));
         }
 
         ExecutorService exe = Executors.newWorkStealingPool();
 
         try {
-            exe.invokeAll(callables)
-            .stream()
+            this.totalBoards = exe.invokeAll(callables).stream()
             .map(future -> {
                 try {
                     return future.get();
@@ -121,13 +104,12 @@ public class ThreadingSolver extends Solver {
                     throw new IllegalStateException(e);
                 }
             })
-            .forEach(value -> { this.totalBoards += value; });
+            .reduce(0, (a, v) -> a + v);
         } catch (InterruptedException e) {
             System.err.println(e);
             System.err.println("WUBALUBADUBDUB");
         }
 
-        exe.shutdown();
         if (settings.result != null) {
             settings.result.addAll(results);
         }
@@ -135,24 +117,22 @@ public class ThreadingSolver extends Solver {
 
     private class Runner implements Callable<Integer> {
 
+        private String name;
         private Board.Pool boardPool;
         private Context.Pool contextPool;
         private HashMap<String, LinkedList<Context>> cache;
         private Iterable<LinkedList<Piece>> pieces;
         private ConcurrentLinkedQueue<Board> results;
-        private boolean useRotation;
-        private boolean debug;
         private int counter;
 
-        public Runner(int M, int N, int P, int poolSize, Iterable<LinkedList<Piece>> pieces, boolean useRotation, ConcurrentLinkedQueue<Board> results, boolean debug) {
+        public Runner(String name, Iterable<LinkedList<Piece>> pieces, ConcurrentLinkedQueue<Board> results) {
 
+            this.name = name;
             this.pieces = pieces;
             this.results = results;
-            this.debug = debug;
-            this.boardPool = new Board.Pool(poolSize, M, N, P);
-            this.contextPool = new Context.Pool(poolSize);
+            this.boardPool = new Board.Pool(settings.poolSize, M, N, P);
+            this.contextPool = new Context.Pool(settings.poolSize);
             this.cache = new HashMap<>();
-            this.useRotation = useRotation;
         }
 
         @Override
@@ -219,7 +199,7 @@ public class ThreadingSolver extends Solver {
          */
         public void getAllBoards( Board board, LinkedList<Piece> inputList) {
 
-        boolean rotateThisInput = this.useRotation && !Utils.isPalyndrome(Utils.getCacheKey(inputList));
+            boolean rotateThisInput = useRotation && !Utils.isPalyndrome(Utils.getCacheKey(inputList));
 
             /*
              * This is sequance of all board positions starting from left to right, top to bottom.
@@ -357,8 +337,12 @@ public class ThreadingSolver extends Solver {
         }
 
         private void debug(String message) {
-            if (this.debug) {
-                System.out.println(Thread.currentThread().getName() + ": " + message);
+            if (settings.debug) {
+                System.out.println(String.format(
+                          "%s %s: %s",
+                          Thread.currentThread().getName(),
+                          this.name,
+                          message));
             }
         }
 
