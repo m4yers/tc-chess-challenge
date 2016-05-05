@@ -97,7 +97,6 @@ public class App {
 
         Solver solver = null;;
 
-        // TODO CHECK WHY SOLVER OPTION PASSED DIFFERENT FROM DEFAULT VALUE
         switch (this.solver) {
         case "threading": {
             solver = new ThreadingSolver(this.M, this.N, freq, settings, this.poolSize);
@@ -121,7 +120,8 @@ public class App {
         long time = System.nanoTime();
         solver.solve();
         time = System.nanoTime() - time;
-        System.out.println("Total: " + solver.totalBoards() + ", Time: " + (time / 1000000) + "ms");
+
+        System.out.printf("Results:\nboards: %d\ntime(ms): %d\n", solver.totalBoards(), time / 1000000);
     }
 
     public static void main( String[] args ) {
