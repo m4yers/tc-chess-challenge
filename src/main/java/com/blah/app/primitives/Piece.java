@@ -18,13 +18,6 @@ package com.blah.app.primitives;
  */
 final public class Piece {
 
-    public static enum Move {
-        Perpendicular,
-        Diagonal,
-        Knight,
-        King
-    };
-
     private static Piece king = new Piece("K");
     private static Piece queen = new Piece("Q");
     private static Piece bishop = new Piece("B");
