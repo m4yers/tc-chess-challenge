@@ -1,28 +1,40 @@
-package com.blah.app;
+package com.blah.app.utils;
 
+import java.util.List;
 import java.util.LinkedList;
-import java.util.ArrayList;
 import java.util.HashMap;
 
-public class BruteForceSolver extends Solver {
+import com.blah.app.primitives.*;
 
-    public BruteForceSolver(int M, int N, HashMap<Piece, Integer> freq, Settings settings) {
-        super(M, N, freq, settings);
-    }
+public class Utils {
 
-    public void solve() {
-        Board board = new Board(this.M, this.N, this.P);
+    /*
+     * Get string representation of piece sequance
+     */
+    public static String getCacheKey(List<Piece> pieces, int start, int end) {
+        String key = "";
 
-        LinkedList<LinkedList<Piece>> inputs = new LinkedList<>();
-        permuteInput(this.freq, this.P, new LinkedList<>(), inputs);
-
-        for (LinkedList<Piece> i : inputs) {
-            getAllBoards(board, i, board.getFreeLocations());
+        for (int i = start; i < end; i++) {
+            key += pieces.get(i).getSymbol();
         }
+
+        return key;
     }
 
+    public static String getCacheKey(List<Piece> pieces) {
+        String key = "";
 
-    private void permuteInput(
+        for (Piece piece : pieces) {
+            key += piece.getSymbol();
+        }
+
+        return key;
+    }
+
+    /*
+     * Get all input permutations
+     */
+    public static void permuteInput(
         HashMap<Piece, Integer> freq,
         int rest,
         LinkedList<Piece> current,
@@ -44,31 +56,15 @@ public class BruteForceSolver extends Solver {
         }
     }
 
-    public void getAllBoards(
-        Board board,
-        LinkedList<Piece> inputList,
-        ArrayList<Board.Location> freeList) {
-
-        if (inputList.size() == 0) {
-            gotBoard(board);
-            return;
-        }
-
-        Piece piece = inputList.removeFirst();
-        while (freeList.size() != 0) {
-            // FIXME the free list is changed every time we add a thing, need to request it again
-            // actually it is ok, since requesting new list is O(MxN) and scipping used is ~O(M)
-            Board.Location loc = freeList.remove(0);
-            Board clone = new Board(board);
-            if (tryToPlace(clone, piece, loc)) {
-                // TODO use queue here to break recursion like BFS
-                // TODO to escape inputList and freeList cloning, use indices
-                getAllBoards(clone, new LinkedList<>(inputList), new ArrayList<>(freeList));
-            }
-        }
+    public static String reverseString(String str) {
+        return new StringBuilder(str).reverse().toString();
     }
 
-    public boolean tryToPlace(Board board, Piece piece, Board.Location loc) {
+    public static boolean isPalyndrome (String str) {
+        return str.compareTo(reverseString(str)) == 0;
+    }
+
+    public static boolean tryToPlace(Board board, Piece piece, Board.Location loc) {
         int m = loc.m();
         int n = loc.n();
 
@@ -81,6 +77,7 @@ public class BruteForceSolver extends Solver {
 
                 board.addPiece(piece, m, n);
                 board.addPerpendicularBlock(m, n);
+                board.addDiagonalBlock(m, n);
                 return true;
             }
         } else if (piece == Piece.getKing()) {
@@ -94,6 +91,7 @@ public class BruteForceSolver extends Solver {
                     && !board.isAnyPieceAt(m + 1, n - 1)
                     && !board.isAnyPieceAt(m - 1, n + 1)
                     && !board.isAnyPieceAt(m + 1, n + 1)) {
+
                 board.addPiece(piece, m, n);
                 board.addPerpendicularBlock(m, n, 1);
                 board.addDiagonalBlock(m, n, 1);

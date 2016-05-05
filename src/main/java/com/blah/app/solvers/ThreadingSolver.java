@@ -1,4 +1,4 @@
-package com.blah.app;
+package com.blah.app.solvers;
 
 import java.util.Collections;
 import java.util.LinkedList;
@@ -13,6 +13,10 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Callable;
 
+import com.blah.app.primitives.*;
+import com.blah.app.utils.*;
+
+// TODO add threaded bruteforce, it seems bf works better than caching on hi-end machines
 public class ThreadingSolver extends Solver {
 
     private int poolSize;
@@ -29,7 +33,6 @@ public class ThreadingSolver extends Solver {
         super(M, N, freq, settings);
         this.poolSize = poolSize;
         this.useRotation = M == N;
-        this.useRotation = false;
     }
 
     public ThreadingSolver(int M, int N, HashMap<Piece, Integer> freq, Settings settings) {
@@ -45,30 +48,39 @@ public class ThreadingSolver extends Solver {
         LinkedList<LinkedList<Piece>> inputs = new LinkedList<>();
         Utils.permuteInput(this.freq, this.P, new LinkedList<>(), inputs);
 
+
+        /*
+         * As with classic 8Q problem there are a number of 'core' solutions, others are just
+         * reflections and rotations. The very simple optimization here is just to drop all
+         * reflection inputs and add 180 rotated boards as result making sure that input sequance
+         * is not palindrome. Other rotations and reflections are bit more complicated to check
+         * for uniqueness. Plus 90 and 270 rotations won't work for non-square boards.
+         */
+        // this.useRotation = false;
         if (this.useRotation)  {
 
-            /*
-             * As with classic 8Q problem there are a number of 'core' solutions, others are just
-             * reflections and rotations. The very simple optimization here is just to drop all
-             * reflection inputs and add 180 rotated boards as result making sure that input sequance
-             * is not palindrome. Other rotations and reflections are bit more complicated to check
-             * for uniqueness. Plus 90 and 270 rotations won't work for non-square boards.
-             */
+            debug("Before: " + inputs.size());
+
             HashMap<String, LinkedList<Piece>> set = new HashMap<>();
+
             for (LinkedList<Piece> pieces : inputs) {
                 String key = Utils.getCacheKey(pieces, 0, pieces.size());
-                String reversed = new StringBuilder(key).reverse().toString();
-                if (!set.containsKey(reversed)) {
+                String reversed = Utils.reverseString(key);
+                if (!set.containsKey(key) && !set.containsKey(reversed)) {
                     set.put(key, pieces);
                 }
             }
 
             inputs = new LinkedList<>(set.values());
+
+            debug("After: " + inputs.size());
+
+            // return;
         }
 
         //TODO add daemon to print it if needed
         ConcurrentLinkedQueue<Board> results = null;
-        if (this.settings.results != null)  {
+        if (this.settings.result != null)  {
             results = new ConcurrentLinkedQueue<>();
         }
 
@@ -92,8 +104,9 @@ public class ThreadingSolver extends Solver {
             if (list.size() == 0) {
                 continue;
             }
+            // making sure there is an order in input
             Collections.sort(list, (a, b) -> Utils.getCacheKey(a, 0, a.size()).compareTo(Utils.getCacheKey(b, 0, b.size())));
-            callables.add(new Runner(this.M, this.N, this.P, this.poolSize, list, results, this.settings.debug));
+            callables.add(new Runner(this.M, this.N, this.P, this.poolSize, list, this.useRotation, results, this.settings.debug));
         }
 
         ExecutorService exe = Executors.newWorkStealingPool();
@@ -115,15 +128,15 @@ public class ThreadingSolver extends Solver {
         }
 
         exe.shutdown();
-        if (settings.results != null) {
-            settings.results.addAll(results);
+        if (settings.result != null) {
+            settings.result.addAll(results);
         }
     }
 
     private class Runner implements Callable<Integer> {
 
         private Board.Pool boardPool;
-        private ContextPool contextPool;
+        private Context.Pool contextPool;
         private HashMap<String, LinkedList<Context>> cache;
         private Iterable<LinkedList<Piece>> pieces;
         private ConcurrentLinkedQueue<Board> results;
@@ -131,16 +144,15 @@ public class ThreadingSolver extends Solver {
         private boolean debug;
         private int counter;
 
-        public Runner(int M, int N, int P, int poolSize, Iterable<LinkedList<Piece>> pieces, ConcurrentLinkedQueue<Board> results, boolean debug) {
+        public Runner(int M, int N, int P, int poolSize, Iterable<LinkedList<Piece>> pieces, boolean useRotation, ConcurrentLinkedQueue<Board> results, boolean debug) {
 
             this.pieces = pieces;
             this.results = results;
             this.debug = debug;
             this.boardPool = new Board.Pool(poolSize, M, N, P);
-            this.contextPool = new ContextPool(poolSize);
+            this.contextPool = new Context.Pool(poolSize);
             this.cache = new HashMap<>();
-            this.useRotation = M == N;
-            this.useRotation = false;
+            this.useRotation = useRotation;
         }
 
         @Override
@@ -206,6 +218,8 @@ public class ThreadingSolver extends Solver {
          * @param inputList Piece sequance to be placed on the board
          */
         public void getAllBoards( Board board, LinkedList<Piece> inputList) {
+
+        boolean rotateThisInput = this.useRotation && !Utils.isPalyndrome(Utils.getCacheKey(inputList));
 
             /*
              * This is sequance of all board positions starting from left to right, top to bottom.
@@ -306,7 +320,7 @@ public class ThreadingSolver extends Solver {
                      * Trying to place a piece in the board, if we are successful the cloned board
                      * goes to the next generation, otherwise we place it back into the pool
                      */
-                    if (tryToPlace(cloneBoard, piece, loc)) {
+                    if (Utils.tryToPlace(cloneBoard, piece, loc)) {
 
                         /*
                          * We have placed all the pieces
@@ -315,7 +329,7 @@ public class ThreadingSolver extends Solver {
                             /*
                              * If current sequance is not palindrome we can get board rotation
                              */
-                            if (this.useRotation && !Utils.isPalyndrome(key)) {
+                            if (rotateThisInput) {
                                 Board rotation = boardPool.get(cloneBoard);
                                 rotation.rotate180();
                                 gotBoard(rotation);
@@ -342,87 +356,6 @@ public class ThreadingSolver extends Solver {
             }
         }
 
-        /*
-         * The method tries to place the piece on the board for a given location. It simply iterates
-         * over piece's type moves and applies board transformation accordingly
-         */
-    public boolean tryToPlace(Board board, Piece piece, Board.Location loc) {
-        int m = loc.m();
-        int n = loc.n();
-
-        if (piece == Piece.getQueen()) {
-            if (
-                !board.isBlocked(loc) &&
-                !board.isAnyPieceOnRow(n) &&
-                !board.isAnyPieceOnColumn(m) &&
-                !board.isAnyPieceOnDiagonals(m, n)) {
-
-                board.addPiece(piece, m, n);
-                board.addPerpendicularBlock(m, n);
-                return true;
-            }
-        } else if (piece == Piece.getKing()) {
-            if (!board.isBlocked(loc)
-                    && !board.isAnyPieceAt(m, n)
-                    && !board.isAnyPieceAt(m, n - 1)
-                    && !board.isAnyPieceAt(m, n + 1)
-                    && !board.isAnyPieceAt(m - 1, n)
-                    && !board.isAnyPieceAt(m + 1, n)
-                    && !board.isAnyPieceAt(m - 1, n - 1)
-                    && !board.isAnyPieceAt(m + 1, n - 1)
-                    && !board.isAnyPieceAt(m - 1, n + 1)
-                    && !board.isAnyPieceAt(m + 1, n + 1)) {
-                board.addPiece(piece, m, n);
-                board.addPerpendicularBlock(m, n, 1);
-                board.addDiagonalBlock(m, n, 1);
-                return true;
-            }
-        } else if (piece == Piece.getBishop()) {
-            if (!board.isBlocked(loc) &&
-                    !board.isAnyPieceOnDiagonals(m, n)) {
-
-                board.addPiece(piece, m, n);
-                board.addDiagonalBlock(m, n);
-                return true;
-            }
-        } else if (piece == Piece.getRook()) {
-            if (
-                !board.isBlocked(loc) &&
-                !board.isAnyPieceOnRow(n) &&
-                !board.isAnyPieceOnColumn(m)) {
-
-                board.addPiece(piece, m, n);
-                board.addPerpendicularBlock(m, n);
-                return true;
-            }
-        } else if (piece == Piece.getKnight()) {
-            if (!board.isBlocked(loc)
-                    && !board.isAnyPieceAt(m - 2, n - 1)
-                    && !board.isAnyPieceAt(m - 1, n - 2)
-                    && !board.isAnyPieceAt(m + 2, n - 1)
-                    && !board.isAnyPieceAt(m + 1, n - 2)
-                    && !board.isAnyPieceAt(m - 2, n + 1)
-                    && !board.isAnyPieceAt(m - 1, n + 2)
-                    && !board.isAnyPieceAt(m + 2, n + 1)
-                    && !board.isAnyPieceAt(m + 1, n + 2)
-                    && !board.isAnyPieceAt(m, n)) {
-                board.addPiece(piece, m, n);
-                board.addBlock(m - 2, n - 1);
-                board.addBlock(m - 1, n - 2);
-                board.addBlock(m + 2, n - 1);
-                board.addBlock(m + 1, n - 2);
-                board.addBlock(m - 2, n + 1);
-                board.addBlock(m - 1, n + 2);
-                board.addBlock(m + 2, n + 1);
-                board.addBlock(m + 1, n + 2);
-                return true;
-            }
-        } else {
-            return false;
-        }
-        return false;
-    }
-
         private void debug(String message) {
             if (this.debug) {
                 System.out.println(Thread.currentThread().getName() + ": " + message);
@@ -433,67 +366,6 @@ public class ThreadingSolver extends Solver {
             this.counter++;
             if (this.results != null) {
                 this.results.add(new Board(board));
-            }
-            // System.out.println(board);
-            // if (this.counter % 1000000 == 0) {
-            //     debug("--------------------------------------------------------" + this.counter);
-            // }
-        }
-    }
-
-    /*
-     * Context stores board and current input and free list indices, used with main cycle queue
-     */
-    private static class Context {
-        public Board board;
-        public int inputIndex;
-        public int freeIndex;
-
-        public Context(
-            Board board,
-            int inputIndex,
-            int freeIndex) {
-
-            this.board = board;
-            this.inputIndex = inputIndex;
-            this.freeIndex = freeIndex;
-        }
-
-        public Context(Context that) {
-            this.board = new Board(that.board);
-            this.inputIndex = that.inputIndex;
-            this.freeIndex = that.freeIndex;
-        }
-    }
-
-    private static class ContextPool {
-
-        public ArrayList<Context> pool = new ArrayList<>();
-
-        public ContextPool(int S) {
-            this.pool = new ArrayList<>(S);
-            for (int i = 0; i < S; i++) {
-                pool.add(new Context(null, -1, -1));
-            }
-        }
-
-        public int size() {
-            return pool.size();
-        }
-
-        public void put(Context context) {
-            pool.add(context);
-        }
-
-        public Context get(Board board, int inputIndex, int freeIndex) {
-            if (pool.size() == 0)  {
-                return new Context(board, inputIndex, freeIndex);
-            } else {
-                Context context = pool.remove(pool.size() - 1);
-                context.board = board;
-                context.inputIndex = inputIndex;
-                context.freeIndex = freeIndex;
-                return context;
             }
         }
     }

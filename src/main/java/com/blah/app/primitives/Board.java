@@ -1,9 +1,11 @@
-package com.blah.app;
+package com.blah.app.primitives;
 
 import java.util.LinkedList;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Arrays;
+
+import com.blah.app.utils.*;
 
 public class Board {
 
@@ -203,7 +205,7 @@ public class Board {
 
     /*
      * Check if mxn is blocked
-     * 
+     *
      * @param m Column
      * @param n Row
      */
@@ -214,7 +216,7 @@ public class Board {
 
     /*
      * Check if loc is blocked
-     * 
+     *
      * @param loc Location
      */
     public boolean isBlocked(Location loc) {
@@ -223,7 +225,7 @@ public class Board {
 
     /*
      * Check if any piece is at mxn
-     * 
+     *
      * @param m Column
      * @param n Row
      */
@@ -236,7 +238,7 @@ public class Board {
 
     /*
      * Check if any piece on row n
-     * 
+     *
      * @param n Row
      */
     public boolean isAnyPieceOnRow(int n) {
@@ -250,7 +252,7 @@ public class Board {
 
     /*
      * Check if any piece on column n
-     * 
+     *
      * @param m Column
      */
     public boolean isAnyPieceOnColumn(int m) {
@@ -264,7 +266,7 @@ public class Board {
 
     /*
      * Check if any piece on diagonals mxn
-     * 
+     *
      * @param m Column
      * @param n Row
      */
@@ -274,7 +276,7 @@ public class Board {
 
     /*
      * Check if any piece on diagonals mxn within distance l
-     * 
+     *
      * @param m Column
      * @param n Row
      * @param l Distance from center
@@ -320,6 +322,17 @@ public class Board {
         return result;
     }
 
+    /*
+     * Get all locations of the board
+     */
+    public ArrayList<Location> getLocations() {
+        ArrayList<Location> result = new ArrayList<>(this.size - this.blocked);
+        for (int f = 0; f < this.size; f++) {
+            result.add(toLocation(f));
+        }
+        return result;
+    }
+
     public String toString() {
         StringBuilder builder = new StringBuilder();
         toString(builder);
@@ -354,6 +367,18 @@ public class Board {
 
     public int P() {
         return this.P;
+    }
+
+    public HashMap<Location, Piece> pieces() {
+        HashMap<Location, Piece> result = new HashMap<>();
+        for (int i = 0; i < this.size; i++) {
+            if (this.pieces[i] == null) {
+                continue;
+            }
+
+            result.put(toLocation(i), this.pieces[i]);
+        }
+        return result;
     }
 
     public int hashCode() {

@@ -1,4 +1,4 @@
-package com.blah.app;
+package com.blah.app.solvers;
 
 import java.util.Collections;
 import java.util.LinkedList;
@@ -7,10 +7,13 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 
+import com.blah.app.primitives.*;
+import com.blah.app.utils.*;
+
 public class CachingSolver extends Solver {
 
     private Board.Pool boardPool;
-    private ContextPool contextPool;
+    private Context.Pool contextPool;
     private HashMap<String, LinkedList<Context>> cache;
     private boolean doRotation;
 
@@ -25,10 +28,8 @@ public class CachingSolver extends Solver {
         super(M, N, freq, settings);
 
         this.boardPool = new Board.Pool(poolSize, this.M, this.N, this.P);
-        this.contextPool = new ContextPool(poolSize);
-        //FIXME this is a bit dirty, need to figure out how to rotate board 180 properly
+        this.contextPool = new Context.Pool(poolSize);
         this.doRotation = M == N;
-        this.doRotation = false;
 
         /*
          * This cache stores half-solved boards, assuming all input comes sorted the first sequance
@@ -58,7 +59,7 @@ public class CachingSolver extends Solver {
          * computation allows us break from recursion in the main cycle.
          */
         LinkedList<LinkedList<Piece>> inputs = new LinkedList<>();
-        permuteInput(this.freq, this.P, new LinkedList<>(), inputs);
+        Utils.permuteInput(this.freq, this.P, new LinkedList<>(), inputs);
 
         if (this.doRotation) {
             /*
@@ -70,8 +71,8 @@ public class CachingSolver extends Solver {
              */
             HashMap<String, LinkedList<Piece>> set = new HashMap<>();
             for (LinkedList<Piece> pieces : inputs) {
-                String key = getCacheKey(pieces, 0, pieces.size());
-                String reversed = new StringBuilder(key).reverse().toString();
+                String key = Utils.getCacheKey(pieces, 0, pieces.size());
+                String reversed = Utils.reverseString(key);
                 if (!set.containsKey(reversed)) {
                     set.put(key, pieces);
                 }
@@ -104,7 +105,7 @@ public class CachingSolver extends Solver {
 
                     // why +1 because getCacheKey second argument is 'till'
                     for (int j = i + 1; j < prev.size(); j++) {
-                        String k = getCacheKey(prev, 0, j);
+                        String k = Utils.getCacheKey(prev, 0, j);
                         if (cache.containsKey(k)) {
                             int count = 0;
                             for (Context context : cache.remove(k)) {
@@ -144,7 +145,7 @@ public class CachingSolver extends Solver {
      */
     public void getAllBoards( Board board, LinkedList<Piece> inputList) {
 
-        boolean rotateThisInput = this.doRotation && !Utils.isPalyndrome(getCacheKey(inputList, 0, inputList.size()));
+        boolean rotateThisInput = this.doRotation && !Utils.isPalyndrome(Utils.getCacheKey(inputList));
 
         /*
          * This is sequance of all board positions starting from left to right, top to bottom.
@@ -158,7 +159,7 @@ public class CachingSolver extends Solver {
          */
         LinkedList<Context> queue = new LinkedList<>();
 
-        String key = getCacheKey(inputList, 0, inputList.size());
+        String key = Utils.getCacheKey(inputList, 0, inputList.size());
 
         /*
          * Cache record we gonna to fill for the current sub-key
@@ -213,7 +214,7 @@ public class CachingSolver extends Solver {
                     cache.put(key, record);
                 }
 
-                key = getCacheKey(inputList, 0, inputIndex);
+                key = Utils.getCacheKey(inputList, 0, inputIndex);
                 /*
                  * If there is a cache record with this key we do not fill-in new cache record
                  * FIXME bug?
@@ -245,7 +246,7 @@ public class CachingSolver extends Solver {
                  * Trying to place a piece in the board, if we are successful the cloned board
                  * goes to the next generation, otherwise we place it back into the pool
                  */
-                if (tryToPlace(cloneBoard, piece, loc)) {
+                if (Utils.tryToPlace(cloneBoard, piece, loc)) {
 
                     /*
                      * We have placed all the pieces
@@ -281,179 +282,4 @@ public class CachingSolver extends Solver {
         }
     }
 
-    /*
-     * The method tries to place the piece on the board for a given location. It simply iterates
-     * over piece's type moves and applies board transformation accordingly
-     */
-    public boolean tryToPlace(Board board, Piece piece, Board.Location loc) {
-        int m = loc.m();
-        int n = loc.n();
-
-        if (piece == Piece.getQueen()) {
-            if (
-                !board.isBlocked(loc) &&
-                !board.isAnyPieceOnRow(n) &&
-                !board.isAnyPieceOnColumn(m) &&
-                !board.isAnyPieceOnDiagonals(m, n)) {
-
-                board.addPiece(piece, m, n);
-                board.addPerpendicularBlock(m, n);
-                return true;
-            }
-        } else if (piece == Piece.getKing()) {
-            if (!board.isBlocked(loc)
-                    && !board.isAnyPieceAt(m, n)
-                    && !board.isAnyPieceAt(m, n - 1)
-                    && !board.isAnyPieceAt(m, n + 1)
-                    && !board.isAnyPieceAt(m - 1, n)
-                    && !board.isAnyPieceAt(m + 1, n)
-                    && !board.isAnyPieceAt(m - 1, n - 1)
-                    && !board.isAnyPieceAt(m + 1, n - 1)
-                    && !board.isAnyPieceAt(m - 1, n + 1)
-                    && !board.isAnyPieceAt(m + 1, n + 1)) {
-                board.addPiece(piece, m, n);
-                board.addPerpendicularBlock(m, n, 1);
-                board.addDiagonalBlock(m, n, 1);
-                return true;
-            }
-        } else if (piece == Piece.getBishop()) {
-            if (!board.isBlocked(loc) &&
-                    !board.isAnyPieceOnDiagonals(m, n)) {
-
-                board.addPiece(piece, m, n);
-                board.addDiagonalBlock(m, n);
-                return true;
-            }
-        } else if (piece == Piece.getRook()) {
-            if (
-                !board.isBlocked(loc) &&
-                !board.isAnyPieceOnRow(n) &&
-                !board.isAnyPieceOnColumn(m)) {
-
-                board.addPiece(piece, m, n);
-                board.addPerpendicularBlock(m, n);
-                return true;
-            }
-        } else if (piece == Piece.getKnight()) {
-            if (!board.isBlocked(loc)
-                    && !board.isAnyPieceAt(m - 2, n - 1)
-                    && !board.isAnyPieceAt(m - 1, n - 2)
-                    && !board.isAnyPieceAt(m + 2, n - 1)
-                    && !board.isAnyPieceAt(m + 1, n - 2)
-                    && !board.isAnyPieceAt(m - 2, n + 1)
-                    && !board.isAnyPieceAt(m - 1, n + 2)
-                    && !board.isAnyPieceAt(m + 2, n + 1)
-                    && !board.isAnyPieceAt(m + 1, n + 2)
-                    && !board.isAnyPieceAt(m, n)) {
-                board.addPiece(piece, m, n);
-                board.addBlock(m - 2, n - 1);
-                board.addBlock(m - 1, n - 2);
-                board.addBlock(m + 2, n - 1);
-                board.addBlock(m + 1, n - 2);
-                board.addBlock(m - 2, n + 1);
-                board.addBlock(m - 1, n + 2);
-                board.addBlock(m + 2, n + 1);
-                board.addBlock(m + 1, n + 2);
-                return true;
-            }
-        } else {
-            return false;
-        }
-        return false;
-    }
-
-    /*
-     * Get string representation of piece sequance
-     */
-    private String getCacheKey(List<Piece> pieces, int start, int end) {
-        String key = "";
-
-        for (int i = start; i < end; i++) {
-            key += pieces.get(i).getSymbol();
-        }
-
-        return key;
-    }
-
-    /*
-     * Get all input permutations
-     */
-    private void permuteInput(
-        HashMap<Piece, Integer> freq,
-        int rest,
-        LinkedList<Piece> current,
-        LinkedList<LinkedList<Piece>> list) {
-        if (rest == 0) {
-            list.add(current);
-            return;
-        }
-
-        for (Piece p : freq.keySet()) {
-            int v = freq.get(p);
-            if (v > 0) {
-                freq.put(p, v - 1);
-                LinkedList<Piece> clone = new LinkedList<>(current);
-                clone.add(p);
-                permuteInput(freq, rest - 1, clone, list);
-                freq.put(p, v);
-            }
-        }
-    }
-
-    /*
-     * Context stores board and current input and free list indices, used with main cycle queue
-     */
-    private static class Context {
-        public Board board;
-        public int inputIndex;
-        public int freeIndex;
-
-        public Context(
-            Board board,
-            int inputIndex,
-            int freeIndex) {
-
-            this.board = board;
-            this.inputIndex = inputIndex;
-            this.freeIndex = freeIndex;
-        }
-
-        public Context(Context that) {
-            this.board = new Board(that.board);
-            this.inputIndex = that.inputIndex;
-            this.freeIndex = that.freeIndex;
-        }
-    }
-
-    private static class ContextPool {
-
-        public ArrayList<Context> pool = new ArrayList<>();
-
-        public ContextPool(int S) {
-            this.pool = new ArrayList<>(S);
-            for (int i = 0; i < S; i++) {
-                pool.add(new Context(null, -1, -1));
-            }
-        }
-
-        public int size() {
-            return pool.size();
-        }
-
-        public void put(Context context) {
-            pool.add(context);
-        }
-
-        public Context get(Board board, int inputIndex, int freeIndex) {
-            if (pool.size() == 0)  {
-                return new Context(board, inputIndex, freeIndex);
-            } else {
-                Context context = pool.remove(pool.size() - 1);
-                context.board = board;
-                context.inputIndex = inputIndex;
-                context.freeIndex = freeIndex;
-                return context;
-            }
-        }
-    }
 }
