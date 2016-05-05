@@ -28,6 +28,7 @@ public class ThreadingSolver extends Solver {
      */
     public ThreadingSolver(int M, int N, HashMap<Piece, Integer> freq, Settings settings) {
         super(M, N, freq, settings);
+        this.useRotation = M == N;
     }
 
     public void solve() {
