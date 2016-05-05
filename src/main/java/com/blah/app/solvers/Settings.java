@@ -1,7 +1,9 @@
-package com.blah.app;
+package com.blah.app.solvers;
 
 import java.util.LinkedList;
 import java.io.Writer;
+
+import com.blah.app.primitives.*;
 
 public class Settings {
 

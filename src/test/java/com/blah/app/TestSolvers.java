@@ -18,6 +18,10 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 import org.junit.runner.RunWith;
 
+import com.blah.app.primitives.*;
+import com.blah.app.solvers.*;
+import com.blah.app.utils.*;
+
 @RunWith(Parameterized.class)
 @SuppressWarnings("serial")
 public class TestSolvers {

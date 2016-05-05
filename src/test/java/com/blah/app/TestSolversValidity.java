@@ -18,6 +18,10 @@ import org.junit.runner.RunWith;
 
 import static org.junit.Assert.*;
 
+import com.blah.app.primitives.*;
+import com.blah.app.solvers.*;
+import com.blah.app.utils.*;
+
 @RunWith(Parameterized.class)
 @SuppressWarnings({"serial", "unchecked"})
 public class TestSolversValidity {

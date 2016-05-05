@@ -1,4 +1,4 @@
-package com.blah.app;
+package com.blah.app.primitives;
 
 import java.util.ArrayList;
 

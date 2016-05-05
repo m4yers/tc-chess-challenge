@@ -1,8 +1,10 @@
-package com.blah.app;
+package com.blah.app.utils;
 
 import java.util.List;
 import java.util.LinkedList;
 import java.util.HashMap;
+
+import com.blah.app.primitives.*;
 
 public class Utils {
 

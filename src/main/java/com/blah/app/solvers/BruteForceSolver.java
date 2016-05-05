@@ -1,8 +1,11 @@
-package com.blah.app;
+package com.blah.app.solvers;
 
 import java.util.LinkedList;
 import java.util.ArrayList;
 import java.util.HashMap;
+
+import com.blah.app.primitives.*;
+import com.blah.app.utils.*;
 
 public class BruteForceSolver extends Solver {
 

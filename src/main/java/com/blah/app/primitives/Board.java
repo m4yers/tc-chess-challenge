@@ -1,9 +1,11 @@
-package com.blah.app;
+package com.blah.app.primitives;
 
 import java.util.LinkedList;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Arrays;
+
+import com.blah.app.utils.*;
 
 public class Board {
 

@@ -12,6 +12,10 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertFalse;
 
+import com.blah.app.primitives.*;
+import com.blah.app.solvers.*;
+import com.blah.app.utils.*;
+
 //TODO extend with edge test cases
 public class TestUtility {
 

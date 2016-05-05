@@ -1,4 +1,4 @@
-package com.blah.app;
+package com.blah.app.solvers;
 
 import java.util.Collections;
 import java.util.LinkedList;
@@ -6,6 +6,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+
+import com.blah.app.primitives.*;
+import com.blah.app.utils.*;
 
 public class CachingSolver extends Solver {
 

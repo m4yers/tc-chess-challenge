@@ -1,4 +1,4 @@
-package com.blah.app;
+package com.blah.app.utils;
 
 public class Pair<A, B> {
     private A first;

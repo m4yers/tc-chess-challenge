@@ -12,6 +12,8 @@ import java.util.regex.MatchResult;
 
 import java.io.InputStream;
 
+import com.blah.app.primitives.*;
+
 public class ChessTestData {
     public int M;
     public int N;

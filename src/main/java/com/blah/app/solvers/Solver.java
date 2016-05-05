@@ -1,8 +1,9 @@
-package com.blah.app;
+package com.blah.app.solvers;
 
 import java.util.HashMap;
-
 import java.io.IOException;
+
+import com.blah.app.primitives.*;
 
 public abstract class Solver {
 
@@ -25,7 +26,7 @@ public abstract class Solver {
         }
     }
 
-    abstract void solve();
+    public abstract void solve();
 
     protected void debug(String message) {
         if (this.settings.debug) {

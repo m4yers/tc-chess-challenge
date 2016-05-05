@@ -1,4 +1,4 @@
-package com.blah.app;
+package com.blah.app.solvers;
 
 import java.util.Collections;
 import java.util.LinkedList;
@@ -12,6 +12,9 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Callable;
+
+import com.blah.app.primitives.*;
+import com.blah.app.utils.*;
 
 // TODO add threaded bruteforce, it seems bf works better than caching on hi-end machines
 public class ThreadingSolver extends Solver {
