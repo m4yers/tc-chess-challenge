@@ -75,6 +75,7 @@ public class Utils {
 
                 board.addPiece(piece, m, n);
                 board.addPerpendicularBlock(m, n);
+                board.addDiagonalBlock(m, n);
                 return true;
             }
         } else if (piece == Piece.getKing()) {
@@ -88,6 +89,7 @@ public class Utils {
                     && !board.isAnyPieceAt(m + 1, n - 1)
                     && !board.isAnyPieceAt(m - 1, n + 1)
                     && !board.isAnyPieceAt(m + 1, n + 1)) {
+
                 board.addPiece(piece, m, n);
                 board.addPerpendicularBlock(m, n, 1);
                 board.addDiagonalBlock(m, n, 1);
