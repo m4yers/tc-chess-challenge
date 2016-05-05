@@ -37,8 +37,7 @@ public class ThreadingSolver extends Solver {
          * Here we precompute all possible inputs into the solver, it is simple permutation
          * computation allows us break from recursion in the main cycle.
          */
-        LinkedList<LinkedList<Piece>> inputs = new LinkedList<>();
-        Utils.permuteInput(this.freq, this.P, new LinkedList<>(), inputs);
+        LinkedList<LinkedList<Piece>> inputs = Utils.permuteInput(this.freq, this.P);
 
 
         /*
@@ -214,7 +213,7 @@ public class ThreadingSolver extends Solver {
              */
             LinkedList<Context> queue = new LinkedList<>();
 
-            String key = Utils.getCacheKey(inputList, 0, inputList.size());
+            String key = Utils.getCacheKey(inputList);
 
             /*
              * Cache record we gonna to fill for the current sub-key

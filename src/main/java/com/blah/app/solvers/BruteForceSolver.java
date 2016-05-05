@@ -16,8 +16,7 @@ public class BruteForceSolver extends Solver {
     public void solve() {
         Board board = new Board(this.M, this.N, this.P);
 
-        LinkedList<LinkedList<Piece>> inputs = new LinkedList<>();
-        Utils.permuteInput(this.freq, this.P, new LinkedList<>(), inputs);
+        LinkedList<LinkedList<Piece>> inputs = Utils.permuteInput(this.freq, this.P);
 
         for (LinkedList<Piece> i : inputs) {
             getAllBoards(board, i, board.getFreeLocations());
