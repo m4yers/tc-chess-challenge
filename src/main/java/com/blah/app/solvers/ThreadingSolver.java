@@ -80,7 +80,7 @@ public class ThreadingSolver extends Solver {
 
         //TODO add daemon to print it if needed
         ConcurrentLinkedQueue<Board> results = null;
-        if (this.settings.results != null)  {
+        if (this.settings.result != null)  {
             results = new ConcurrentLinkedQueue<>();
         }
 
@@ -128,8 +128,8 @@ public class ThreadingSolver extends Solver {
         }
 
         exe.shutdown();
-        if (settings.results != null) {
-            settings.results.addAll(results);
+        if (settings.result != null) {
+            settings.result.addAll(results);
         }
     }
 

@@ -78,7 +78,15 @@ public class TestSolvers {
             freq.put(Piece.getKnight(), data.knights);
 
             LinkedList<Board> result = new LinkedList<>();
-            Settings settings = new Settings(false, false, null, result);
+
+            Settings settings = new Settings.Builder()
+            .debug(false)
+            .printToScreen(false)
+            .printToFile(null)
+            .poolSize(500)
+            .result(result)
+            .build();
+
             Solver solver = null;
 
             Constructor<?>[] ctors = this.data.solverClass.getDeclaredConstructors();

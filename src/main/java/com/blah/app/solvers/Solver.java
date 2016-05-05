@@ -41,16 +41,16 @@ public abstract class Solver {
             System.out.println(board);
         }
 
-        if (this.settings.out != null) {
+        if (this.settings.printToFile != null) {
             try {
-                this.settings.out.write(board.toString());
+                this.settings.printToFile.write(board.toString());
             } catch (IOException e) {
                 System.err.println(e.toString());
             }
         }
 
-        if (this.settings.results != null) {
-            this.settings.results.add(new Board(board));
+        if (this.settings.result != null) {
+            this.settings.result.add(new Board(board));
         }
     }
 

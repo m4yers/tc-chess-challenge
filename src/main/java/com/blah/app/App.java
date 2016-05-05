@@ -31,7 +31,7 @@ public class App {
 
     //TODO
     @Option(name = "-f", aliases = {"--print-to-file"}, metaVar = "FILE", usage = "Print solved boards to FILE")
-    private boolean printToFile;
+    private String printToFile;
 
     @Option(name = "-ps", aliases = {"--pool-size"}, metaVar = "SIZE", usage = "Pool size for caching solver")
     private int poolSize = 500;
@@ -134,7 +134,14 @@ public class App {
             Solver solver = null;
 
             LinkedList<Board> result = new LinkedList<>();
-            Settings settings = new Settings(false, false, null, result);
+
+            Settings settings = new Settings.Builder()
+            .debug(this.debug)
+            .printToScreen(this.printToScreen)
+            .printToFile(null)
+            .poolSize(this.poolSize)
+            .result(result)
+            .build();
 
             Constructor<?>[] ctors = solvers.get(i).getDeclaredConstructors();
             for (Constructor<?> ctor : ctors) {
@@ -159,7 +166,10 @@ public class App {
         System.out.printf("%-20s %10s %10s\n", "Solver", "Time(ms)", "Boards");
         System.out.println("------------------------------------------------");
         for (int i = 0; i < solvers.size(); i++) {
-            System.out.printf("%-20s %10d %10d\n", solvers.get(i).toString().split(".*\\.")[1], timings[i] / 1000000, results.get(i).size());
+            System.out.printf( "%-20s %10d %10d\n",
+                               solvers.get(i).toString().split(".*\\.")[1],
+                               timings[i] / 1000000,
+                               results.get(i).size());
         }
         System.out.println();
 

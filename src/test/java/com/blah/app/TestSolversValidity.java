@@ -81,7 +81,13 @@ public class TestSolversValidity {
             Solver solver = null;
 
             LinkedList<Board> result = new LinkedList<>();
-            Settings settings = new Settings(false, false, null, result);
+            Settings settings = new Settings.Builder()
+            .debug(false)
+            .printToScreen(false)
+            .printToFile(null)
+            .poolSize(500)
+            .result(result)
+            .build();
 
             Constructor<?>[] ctors = ((Class<? extends Solver>)solverClass).getDeclaredConstructors();
             for (Constructor<?> ctor : ctors) {
