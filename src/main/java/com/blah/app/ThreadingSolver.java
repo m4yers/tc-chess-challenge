@@ -133,7 +133,7 @@ public class ThreadingSolver extends Solver {
     private class Runner implements Callable<Integer> {
 
         private Board.Pool boardPool;
-        private ContextPool contextPool;
+        private Context.Pool contextPool;
         private HashMap<String, LinkedList<Context>> cache;
         private Iterable<LinkedList<Piece>> pieces;
         private ConcurrentLinkedQueue<Board> results;
@@ -147,7 +147,7 @@ public class ThreadingSolver extends Solver {
             this.results = results;
             this.debug = debug;
             this.boardPool = new Board.Pool(poolSize, M, N, P);
-            this.contextPool = new ContextPool(poolSize);
+            this.contextPool = new Context.Pool(poolSize);
             this.cache = new HashMap<>();
             this.useRotation = useRotation;
         }
@@ -359,79 +359,10 @@ public class ThreadingSolver extends Solver {
             }
         }
 
-        // private HashSet<String> hash = new HashSet<>();
-
         private void gotBoard(Board board) {
-            // if (this.hash.contains(board.toString())) {
-            //     return;
-            // }
-            //
-            // this.hash.add(board.toString());
-
             this.counter++;
             if (this.results != null) {
                 this.results.add(new Board(board));
-            }
-            // System.out.println(board);
-            // if (this.counter % 1000000 == 0) {
-            //     debug("--------------------------------------------------------" + this.counter);
-            // }
-        }
-    }
-
-    /*
-     * Context stores board and current input and free list indices, used with main cycle queue
-     */
-    private static class Context {
-        public Board board;
-        public int inputIndex;
-        public int freeIndex;
-
-        public Context(
-            Board board,
-            int inputIndex,
-            int freeIndex) {
-
-            this.board = board;
-            this.inputIndex = inputIndex;
-            this.freeIndex = freeIndex;
-        }
-
-        public Context(Context that) {
-            this.board = new Board(that.board);
-            this.inputIndex = that.inputIndex;
-            this.freeIndex = that.freeIndex;
-        }
-    }
-
-    private static class ContextPool {
-
-        public ArrayList<Context> pool = new ArrayList<>();
-
-        public ContextPool(int S) {
-            this.pool = new ArrayList<>(S);
-            for (int i = 0; i < S; i++) {
-                pool.add(new Context(null, -1, -1));
-            }
-        }
-
-        public int size() {
-            return pool.size();
-        }
-
-        public void put(Context context) {
-            pool.add(context);
-        }
-
-        public Context get(Board board, int inputIndex, int freeIndex) {
-            if (pool.size() == 0)  {
-                return new Context(board, inputIndex, freeIndex);
-            } else {
-                Context context = pool.remove(pool.size() - 1);
-                context.board = board;
-                context.inputIndex = inputIndex;
-                context.freeIndex = freeIndex;
-                return context;
             }
         }
     }

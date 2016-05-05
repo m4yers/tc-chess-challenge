@@ -10,7 +10,7 @@ import java.util.List;
 public class CachingSolver extends Solver {
 
     private Board.Pool boardPool;
-    private ContextPool contextPool;
+    private Context.Pool contextPool;
     private HashMap<String, LinkedList<Context>> cache;
     private boolean doRotation;
 
@@ -25,8 +25,7 @@ public class CachingSolver extends Solver {
         super(M, N, freq, settings);
 
         this.boardPool = new Board.Pool(poolSize, this.M, this.N, this.P);
-        this.contextPool = new ContextPool(poolSize);
-        //FIXME this is a bit dirty, need to figure out how to rotate board 180 properly
+        this.contextPool = new Context.Pool(poolSize);
         this.doRotation = M == N;
 
         /*
@@ -280,60 +279,4 @@ public class CachingSolver extends Solver {
         }
     }
 
-    /*
-     * Context stores board and current input and free list indices, used with main cycle queue
-     */
-    private static class Context {
-        public Board board;
-        public int inputIndex;
-        public int freeIndex;
-
-        public Context(
-            Board board,
-            int inputIndex,
-            int freeIndex) {
-
-            this.board = board;
-            this.inputIndex = inputIndex;
-            this.freeIndex = freeIndex;
-        }
-
-        public Context(Context that) {
-            this.board = new Board(that.board);
-            this.inputIndex = that.inputIndex;
-            this.freeIndex = that.freeIndex;
-        }
-    }
-
-    private static class ContextPool {
-
-        public ArrayList<Context> pool = new ArrayList<>();
-
-        public ContextPool(int S) {
-            this.pool = new ArrayList<>(S);
-            for (int i = 0; i < S; i++) {
-                pool.add(new Context(null, -1, -1));
-            }
-        }
-
-        public int size() {
-            return pool.size();
-        }
-
-        public void put(Context context) {
-            pool.add(context);
-        }
-
-        public Context get(Board board, int inputIndex, int freeIndex) {
-            if (pool.size() == 0)  {
-                return new Context(board, inputIndex, freeIndex);
-            } else {
-                Context context = pool.remove(pool.size() - 1);
-                context.board = board;
-                context.inputIndex = inputIndex;
-                context.freeIndex = freeIndex;
-                return context;
-            }
-        }
-    }
 }
