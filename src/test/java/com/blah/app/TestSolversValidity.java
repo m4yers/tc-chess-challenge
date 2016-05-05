@@ -26,7 +26,8 @@ public class TestSolversValidity {
     public static Iterable<TestData> cases() {
         LinkedList<TestData> result = new LinkedList<>();
         generateTestData(4, 4, 2, 1, 1, 2, 1, result); // 2332 test inputs
-        System.out.println(result.size());
+        // generateTestData(3, 3, 2, 1, 1, 2, 1, result); // 2332 test inputs
+        // System.out.println(result.size());
         return result;
     }
 
@@ -76,7 +77,7 @@ public class TestSolversValidity {
             Solver solver = null;
 
             LinkedList<Board> result = new LinkedList<>();
-            Solver.Settings settings = new Solver.Settings(false, false, null, result);
+            Settings settings = new Settings(false, false, null, result);
 
             Constructor<?>[] ctors = ((Class<? extends Solver>)solverClass).getDeclaredConstructors();
             for (Constructor<?> ctor : ctors) {
@@ -110,7 +111,19 @@ public class TestSolversValidity {
          */
 
         // camparing sizes of output
-        assertEquals(1, results.stream().map(r -> r.size()).distinct().count());
+        if (results.stream().map(r -> r.size()).distinct().count() != 1) {
+            System.out.println();
+            System.out.println(this.data);
+            for (int i = 0; i < solvers.length; i++) {
+                System.out.println(solvers[i] + ": " + results.get(i).size());
+                System.out.println();
+                for (Board board : results.get(i)) {
+                    System.out.println(board);
+                }
+            }
+
+            fail();
+        }
     }
 
     private static class TestData {
@@ -131,6 +144,18 @@ public class TestSolversValidity {
             this.bishops = bishops;
             this.rooks = rooks;
             this.knights = knights;
+        }
+
+        public String toString() {
+            return String.format(
+                       "TestData M %d N %d kings %d queens %d bishops %d rooks %d knights %d",
+                       this.M,
+                       this.N,
+                       this.kings,
+                       this.queens,
+                       this.bishops,
+                       this.rooks,
+                       this.knights);
         }
     }
 }

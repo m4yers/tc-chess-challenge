@@ -93,7 +93,7 @@ public class App {
         freq.put(Piece.getRook(),   this.rooks);
         freq.put(Piece.getKnight(), this.knights);
 
-        Solver.Settings settings = new Solver.Settings(this.debug, this.printToScreen, null, null);
+        Settings settings = new Settings(this.debug, this.printToScreen, null, null);
 
         Solver solver = null;;
 

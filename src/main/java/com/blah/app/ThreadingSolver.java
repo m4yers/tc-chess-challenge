@@ -30,7 +30,6 @@ public class ThreadingSolver extends Solver {
         super(M, N, freq, settings);
         this.poolSize = poolSize;
         this.useRotation = M == N;
-        // this.useRotation = false;
     }
 
     public ThreadingSolver(int M, int N, HashMap<Piece, Integer> freq, Settings settings) {
@@ -360,14 +359,14 @@ public class ThreadingSolver extends Solver {
             }
         }
 
-        private HashSet<String> hash = new HashSet<>();
+        // private HashSet<String> hash = new HashSet<>();
 
         private void gotBoard(Board board) {
-            if (this.hash.contains(board.toString())) {
-                return;
-            }
-
-            this.hash.add(board.toString());
+            // if (this.hash.contains(board.toString())) {
+            //     return;
+            // }
+            //
+            // this.hash.add(board.toString());
 
             this.counter++;
             if (this.results != null) {

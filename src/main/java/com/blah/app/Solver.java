@@ -1,34 +1,15 @@
 package com.blah.app;
 
-import java.util.LinkedList;
 import java.util.HashMap;
-import java.util.HashSet;
 
-import java.io.Writer;
 import java.io.IOException;
 
 public abstract class Solver {
-
-    public static class Settings {
-
-        public boolean debug;
-        public boolean printToScreen;
-        public Writer out;
-        public LinkedList<Board> results;
-
-        public Settings(boolean debug, boolean printToScreen, Writer out, LinkedList<Board> results) {
-            this.debug = debug;
-            this.printToScreen = printToScreen;
-            this.out = out;
-            this.results = results;
-        }
-    }
 
     protected int M;
     protected int N;
     protected int P;
     protected HashMap<Piece, Integer> freq;
-    public HashSet<String> hash;
 
     protected Settings settings;
     protected int totalBoards;
@@ -38,7 +19,6 @@ public abstract class Solver {
         this.N = N;
         this.freq = freq;
         this.settings = settings;
-        this.hash = new HashSet<>();
 
         for (Piece piece : freq.keySet()) {
             this.P += freq.get(piece);
@@ -54,18 +34,7 @@ public abstract class Solver {
     }
 
     protected void gotBoard(Board board) {
-
-        if (this.hash.contains(board.toString())) {
-            return;
-        }
-
-        this.hash.add(board.toString());
-
         this.totalBoards++;
-
-        if (this.totalBoards() % 1000000 == 0) {
-            debug("-----------------------------------results: " + this.totalBoards());
-        }
 
         if (this.settings.printToScreen) {
             System.out.println(board);

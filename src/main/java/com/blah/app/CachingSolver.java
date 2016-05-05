@@ -28,7 +28,6 @@ public class CachingSolver extends Solver {
         this.contextPool = new ContextPool(poolSize);
         //FIXME this is a bit dirty, need to figure out how to rotate board 180 properly
         this.doRotation = M == N;
-        this.doRotation = false;
 
         /*
          * This cache stores half-solved boards, assuming all input comes sorted the first sequance
@@ -58,7 +57,7 @@ public class CachingSolver extends Solver {
          * computation allows us break from recursion in the main cycle.
          */
         LinkedList<LinkedList<Piece>> inputs = new LinkedList<>();
-        permuteInput(this.freq, this.P, new LinkedList<>(), inputs);
+        Utils.permuteInput(this.freq, this.P, new LinkedList<>(), inputs);
 
         if (this.doRotation) {
             /*
@@ -144,7 +143,7 @@ public class CachingSolver extends Solver {
      */
     public void getAllBoards( Board board, LinkedList<Piece> inputList) {
 
-        boolean rotateThisInput = this.doRotation;//  && !Utils.isPalyndrome(getCacheKey(inputList, 0, inputList.size()));
+        boolean rotateThisInput = this.doRotation && !Utils.isPalyndrome(Utils.getCacheKey(inputList));
 
         /*
          * This is sequance of all board positions starting from left to right, top to bottom.
@@ -277,31 +276,6 @@ public class CachingSolver extends Solver {
                 } else {
                     boardPool.put(cloneBoard);
                 }
-            }
-        }
-    }
-
-    /*
-     * Get all input permutations
-     */
-    private void permuteInput(
-        HashMap<Piece, Integer> freq,
-        int rest,
-        LinkedList<Piece> current,
-        LinkedList<LinkedList<Piece>> list) {
-        if (rest == 0) {
-            list.add(current);
-            return;
-        }
-
-        for (Piece p : freq.keySet()) {
-            int v = freq.get(p);
-            if (v > 0) {
-                freq.put(p, v - 1);
-                LinkedList<Piece> clone = new LinkedList<>(current);
-                clone.add(p);
-                permuteInput(freq, rest - 1, clone, list);
-                freq.put(p, v);
             }
         }
     }
