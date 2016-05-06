@@ -110,6 +110,7 @@ public class ThreadingSolver extends Solver {
             System.err.println("WUBALUBADUBDUB");
         }
 
+        exe.shutdown();
         if (settings.result != null) {
             settings.result.addAll(results);
         }
