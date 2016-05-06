@@ -128,19 +128,17 @@ public class App {
         }
 
         long[] timings = new long[solvers.size()];
-        List<LinkedList<Board>> results = new LinkedList<>();
+        long[] results = new long[solvers.size()];
 
         for (int i = 0; i < solvers.size(); i++) {
             Solver solver = null;
-
-            LinkedList<Board> result = new LinkedList<>();
 
             Settings settings = new Settings.Builder()
             .debug(this.debug)
             .printToScreen(this.printToScreen)
             .printToFile(null)
             .poolSize(this.poolSize)
-            .result(result)
+            .result(null)
             .build();
 
             Constructor<?>[] ctors = solvers.get(i).getDeclaredConstructors();
@@ -158,7 +156,7 @@ public class App {
             long time = System.nanoTime();
             solver.solve();
             timings[i] = System.nanoTime() - time;
-            results.add(result);
+            results[i] = solver.totalBoards();
         }
 
         System.out.println();
@@ -169,7 +167,7 @@ public class App {
             System.out.printf( "%-20s %10d %10d\n",
                                solvers.get(i).toString().split(".*\\.")[1],
                                timings[i] / 1000000,
-                               results.get(i).size());
+                               results[i]);
         }
         System.out.println();
 
