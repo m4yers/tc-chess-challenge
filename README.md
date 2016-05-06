@@ -8,7 +8,7 @@ Run
 ```
 mvn package
 java -jar target/chess-solver-1.0-SNAPSHOT.jar -M 8 -N 8 -queens 8 --solver bruteforce --debug
-java -jar target/chess-solver-1.0-SNAPSHOT.jar -M 7 -N 7 -kings 2 -queens 2 -bishops 2 -knights 1 --solver all --debug
+java -jar target/chess-solver-1.0-SNAPSHOT.jar -M 7 -N 7 -kings 2 -queens 2 -bishops 2 -knights 1 --solver threading --debug
 ```
 
 Usage
